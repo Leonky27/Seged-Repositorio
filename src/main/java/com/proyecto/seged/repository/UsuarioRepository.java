@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UsuarioRepository extends MongoRepository<Usuario, Integer> {
 
-    Usuario findById(ObjectId id);
+    Usuario findById(String id);
 
-    void deleteById(ObjectId id);
+    void deleteById(String id);
 }

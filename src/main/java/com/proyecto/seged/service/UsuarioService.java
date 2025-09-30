@@ -22,11 +22,11 @@ public class UsuarioService {
         return usuarioRepository.findAll();
     }
 
-    public Usuario get(ObjectId id){
+    public Usuario get(String id){
         return usuarioRepository.findById(id);
     }
 
-    public Usuario update(ObjectId id, Usuario usuario){
+    public Usuario update(String id, Usuario usuario){
         Usuario usuarioActual = usuarioRepository.findById(id);
         usuarioActual.setNombre(usuario.getNombre());
         usuarioActual.setApellido(usuario.getApellido());
@@ -38,7 +38,7 @@ public class UsuarioService {
         return usuarioRepository.save(usuario);
     }
 
-    public void delete(ObjectId id){
+    public void delete(String id){
         usuarioRepository.deleteById(id);
     }
 }
