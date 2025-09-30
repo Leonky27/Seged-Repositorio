@@ -8,25 +8,25 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Usuario {
 
     @Id
-    private ObjectId id;
+    private String id;
 
     private String nombre;
 
     private String apellido;
 
-    private String cedula;
+    private Long cedula;
 
-    private String celular;
+    private Long celular;
 
     private String email;
 
     private Boolean activo;
 
-    public ObjectId getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(ObjectId id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -46,19 +46,19 @@ public class Usuario {
         this.apellido = apellido;
     }
 
-    public String getCedula() {
+    public Long getCedula() {
         return cedula;
     }
 
-    public void setCedula(String cedula) {
+    public void setCedula(Long cedula) {
         this.cedula = cedula;
     }
 
-    public String getCelular() {
+    public Long getCelular() {
         return celular;
     }
 
-    public void setCelular(String celular) {
+    public void setCelular(Long celular) {
         this.celular = celular;
     }
 
