@@ -1,11 +1,10 @@
 package com.proyecto.seged.model;
 
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "usuarios")
-public class Usuario {
+public class Client {
 
     @Id
     private String id;
