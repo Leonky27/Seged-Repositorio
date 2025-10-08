@@ -28,11 +28,10 @@ public class ClientService {
     public Client update(String id, Client client){
         Client clientActual = clientRepository.findById(id);
         clientActual.setNombre(client.getNombre());
-        clientActual.setApellido(client.getApellido());
         clientActual.setCedula(client.getCedula());
+        clientActual.setCorreo(client.getCorreo());
         clientActual.setCelular(client.getCelular());
-        clientActual.setEmail(client.getEmail());
-        clientActual.setActivo(client.getActivo());
+        clientActual.setDireccion(client.getDireccion());
 
         return clientRepository.save(client);
     }
