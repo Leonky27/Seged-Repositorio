@@ -20,6 +20,7 @@ Este proyecto es una aplicación **Spring Boot** diseñada para ayudar a **micro
 - **Hibernate** como ORM
 - **MongoDB** como base de datos no-relacional
 - **Maven** para la gestión de dependencias
-  
+
+  mavn
 
 
