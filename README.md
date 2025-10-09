@@ -16,7 +16,7 @@ Este proyecto es una aplicación **Spring Boot** diseñada para ayudar a **micro
 
 ## 🛠️ Tecnologías utilizadas
 - **Java 21+**
-- **Spring Boot ** (Spring Web, Spring Data JPA, Spring Security)
+- **Spring Boot** (Spring Web, Spring Data MONGODB, Spring Security, lombok)
 - **Hibernate** como ORM
 - **MongoDB** como base de datos no-relacional
 - **Maven** para la gestión de dependencias
