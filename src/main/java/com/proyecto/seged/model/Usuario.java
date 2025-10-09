@@ -12,10 +12,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-@Document(collection = "users")
 @Getter
 @Setter
-public class User implements UserDetails {
+@Document(collection = "users")
+public class Usuario implements UserDetails {
 
     @Id
     private String id;
@@ -27,10 +27,10 @@ public class User implements UserDetails {
 
     private List<String> roles;
 
-    public User() {
+    public Usuario() {
     }
 
-    public User(String username, String password, List<String> roles) {
+    public Usuario(String username, String password, List<String> roles) {
         this.username = username;
         this.password = password;
         this.roles = roles;
