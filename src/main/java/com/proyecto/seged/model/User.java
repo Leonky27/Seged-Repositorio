@@ -25,7 +25,7 @@ public class User implements UserDetails {
 
     private String password;
 
-    private List<String> roles; // e.g. ROLE_USER, ROLE_ADMIN
+    private List<String> roles;
 
     public User() {
     }
