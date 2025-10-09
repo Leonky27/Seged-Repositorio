@@ -1,4 +1,4 @@
-# 📦 Sistema de Control de Inventario para Microempresas
+# 📦 Sistema de Control para Microempresas
 
 Este proyecto es una aplicación **Spring Boot** diseñada para ayudar a **microempresas** a administrar y controlar su inventario de productos de forma sencilla y eficiente.
 
