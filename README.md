@@ -1,6 +1,6 @@
 # 📦 Sistema de Control para Microempresas
 
-Este proyecto es una aplicación **Spring Boot** diseñada para ayudar a **microempresas** a administrar y controlar su inventario de productos de forma sencilla y eficiente.
+Este proyecto es una aplicación **Spring Boot** diseñada para ayudar a **microempresas** a administrar y controlar todas sus funciones internas de forma sencilla y eficiente.
 
 ---
 
@@ -20,7 +20,3 @@ Este proyecto es una aplicación **Spring Boot** diseñada para ayudar a **micro
 - **Hibernate** como ORM
 - **MongoDB** como base de datos no-relacional
 - **Maven** para la gestión de dependencias
-
-  mavn
-
-
