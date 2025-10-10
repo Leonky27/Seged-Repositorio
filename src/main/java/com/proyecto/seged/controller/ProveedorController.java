@@ -17,27 +17,27 @@ public class ProveedorController {
     private ProveedorService proveedorService;
 
     @PostMapping
-    public ResponseEntity<Proveedor> save(@RequestBody Proveedor proveedor){
+    public ResponseEntity<Proveedor> save(@RequestBody Proveedor proveedor) {
         return new ResponseEntity<>(proveedorService.save(proveedor), HttpStatus.CREATED);
     }
 
     @GetMapping
-    public ResponseEntity<List<Proveedor>> getProveedor(){
+    public ResponseEntity<List<Proveedor>> getProveedor() {
         return new ResponseEntity<>(proveedorService.getProveedor(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Proveedor> get(@PathVariable String id){
+    public ResponseEntity<Proveedor> get(@PathVariable String id) {
         return new ResponseEntity<>(proveedorService.get(id), HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Proveedor> update(@PathVariable String id,@RequestBody Proveedor proveedor){
+    public ResponseEntity<Proveedor> update(@PathVariable String id, @RequestBody Proveedor proveedor) {
         return new ResponseEntity<>(proveedorService.update(id, proveedor), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable String id){
+    public ResponseEntity<?> delete(@PathVariable String id) {
         proveedorService.delete(id);
         return new ResponseEntity<>("Proveedor eliminado con exito", HttpStatus.OK);
     }
