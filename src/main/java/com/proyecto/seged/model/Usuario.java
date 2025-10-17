@@ -14,7 +14,7 @@ import java.util.List;
 
 @Getter
 @Setter
-@Document(collection = "users")
+@Document(collection = "usuarios")
 public class Usuario implements UserDetails {
 
     @Id
@@ -47,11 +47,11 @@ public class Usuario implements UserDetails {
         return password;
     }
 
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles == null ? List.of() : roles.stream().map(SimpleGrantedAuthority::new).toList();
     }
+
 
     @Override
     public boolean isAccountNonExpired() {
