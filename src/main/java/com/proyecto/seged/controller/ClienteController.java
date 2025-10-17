@@ -29,7 +29,7 @@ public class ClienteController {
 
     @GetMapping
     public ResponseEntity<List<Cliente>> getUsuarios() {
-        return new ResponseEntity<>(clienteService.getUsuarios(), HttpStatus.OK);
+        return new ResponseEntity<>(clienteService.getCliente(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
