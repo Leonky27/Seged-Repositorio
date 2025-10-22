@@ -25,5 +25,4 @@ public class CategoriaService {
         return categoriaRepository.findById(id);
     }
 
-    public
 }
