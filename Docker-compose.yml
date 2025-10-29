@@ -1,0 +1,58 @@
+version: "3.8"
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: mongo_db
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+      MONGO_INITDB_DATABASE: seged
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - microservicios-network
+
+  backend:
+    build:
+      context: ./seged/seged
+      dockerfile: Dockerfile
+    container_name: java_backend
+    restart: always
+    environment:
+      # URI con auth y base, usando authSource=admin para el usuario root creado por Mongo
+      SPRING_DATA_MONGODB_URI: mongodb://admin:admin123@mongo_db:27017/products_mongo?authSource=admin
+      # (opcional) server.port si no usas 8080 por defecto:
+      # SERVER_PORT: 8080
+    depends_on:
+      - mongodb
+    ports:
+      - "8080:8080"
+    networks:
+      - microservicios-network
+
+  frontend:
+    build:
+      context: ./project-front-main/project-front-main
+      dockerfile: Dockerfile
+    container_name: react_frontend
+    restart: always
+    ports:
+      - "3000:3000"   # o 80:80 si sirves con Nginx
+    environment:
+      # Por si tu front necesita conocer la URL del backend:
+      VITE_API_BASE_URL: http://localhost:8080
+    depends_on:
+      - backend
+    networks:
+      - microservicios-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  microservicios-network:
+    driver: bridge

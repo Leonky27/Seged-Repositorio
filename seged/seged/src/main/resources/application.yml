@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: seged
+
+  data:
+    mongodb:
+      host: ${SPRING_DATA_MONGODB_HOST:localhost}
+      port: ${SPRING_DATA_MONGODB_PORT:27017}
+      database: ${SPRING_DATA_MONGODB_DATABASE:seged}
+      username: ${SPRING_DATA_MONGODB_USERNAME:admin}
+      password: ${SPRING_DATA_MONGODB_PASSWORD:admin123}
+      authentication-database: admin
+
+server:
+  port: 8080
+
+jwt:
+  secret: ${JWT_SECRET:mi_clave_secreta_super_segura_para_jwt_token_2024}
+  expiration: 86400000  # 24 horas en milisegundos
+
+jms:
+  queue:
+    product: product.queue
