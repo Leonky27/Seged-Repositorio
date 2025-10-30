@@ -20,22 +20,18 @@ public class JwtService {
 
     private final SecretKey key;
 
-    // Lee la clave desde application.yml/properties o variable de entorno JWT_SECRET
     public JwtService(@Value("${jwt.secret:}") String secret) {
         if (secret == null || secret.isBlank()) {
             throw new IllegalArgumentException("JWT secret no configurado (jwt.secret / JWT_SECRET)");
         }
 
-        // 1) Intenta decodificar como Base64 estándar
         byte[] keyBytes = tryBase64(secret);
         if (keyBytes == null) {
-            // 2) Si no es Base64, trátalo como TEXTO PLANO (UTF-8)
             keyBytes = secret.getBytes(StandardCharsets.UTF_8);
         }
 
-        // 3) Garantiza longitud mínima de 32 bytes (256 bits) para HMAC-SHA
         if (keyBytes.length < 32) {
-            keyBytes = sha256(keyBytes); // estira la clave de forma determinista
+            keyBytes = sha256(keyBytes);
         }
 
         this.key = Keys.hmacShaKeyFor(keyBytes);
@@ -46,7 +42,6 @@ public class JwtService {
             return Base64.getDecoder().decode(s);
         } catch (IllegalArgumentException e1) {
             try {
-                // También acepta Base64 URL-safe (con '-' y '_')
                 return Base64.getUrlDecoder().decode(s);
             } catch (IllegalArgumentException e2) {
                 return null;
@@ -63,13 +58,12 @@ public class JwtService {
         }
     }
 
-    // === API de ejemplo: ajusta a tu firma actual ===
     public String generateToken(String username) {
         Instant now = Instant.now();
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(Date.from(now))
-                .setExpiration(Date.from(now.plus(7, ChronoUnit.DAYS))) // 7 días; cámbialo si quieres
+                .setExpiration(Date.from(now.plus(7, ChronoUnit.DAYS)))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
