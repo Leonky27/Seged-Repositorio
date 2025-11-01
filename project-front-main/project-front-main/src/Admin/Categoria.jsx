@@ -29,7 +29,6 @@ export function Categoria() {
         fechaCreacion: new Date().toISOString().split("T")[0],
       });
     } catch (err) {
-      // error ya se maneja en el hook; aquí podrías mostrar un toast si quieres
       console.error(err);
     } finally {
       setSubmitting(false);
@@ -59,7 +58,7 @@ export function Categoria() {
           </div>
 
           <div className="card shadow">
-            <div className="card-header bg-primary text-white">
+            <div className="card-header bg-dark text-white">
               <h5 className="mb-0">Crear Categoría</h5>
             </div>
             <div className="card-body">
@@ -108,7 +107,7 @@ export function Categoria() {
                   />
                 </div>
 
-                <button type="submit" className="btn btn-primary w-100" disabled={submitting}>
+                <button type="submit" className="btn btn-dark w-100" disabled={submitting}>
                   <i className="bi bi-plus-circle"></i> {submitting ? "Creando..." : "Crear Categoría"}
                 </button>
               </form>
@@ -122,7 +121,7 @@ export function Categoria() {
           )}
 
           <div className="card shadow mt-4">
-            <div className="card-header bg-success text-white">
+            <div className="card-header bg-dark text-white">
               <h5 className="mb-0">Categorías</h5>
             </div>
             <div className="card-body">

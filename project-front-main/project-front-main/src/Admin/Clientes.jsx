@@ -91,7 +91,7 @@ export function Clientes() {
         <h2>Lista de Clientes</h2>
         <div className="d-flex gap-2">
           <button className="btn btn-outline-secondary" onClick={fetchAll} disabled={loading}>Recargar</button>
-          <button className="btn btn-primary" onClick={() => setShowForm((s) => !s)}>
+          <button className="btn btn-dark" onClick={() => setShowForm((s) => !s)}>
             {showForm ? "Cancelar" : "Nuevo Cliente"}
           </button>
         </div>

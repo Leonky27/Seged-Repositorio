@@ -9,5 +9,7 @@ public interface ClienteRepository extends MongoRepository<Cliente, Integer> {
 
     Cliente findById(String id);
 
+    Cliente findByNombre(String nombre);
+
     void deleteById(String id);
 }

@@ -103,7 +103,7 @@ export  function Proveedores() {
           </div>
 
           <div className="card shadow">
-            <div className="card-header bg-primary text-white">
+            <div className="card-header bg-dark text-white">
               <h5 className="mb-0">{isEditing ? "Editar Proveedor" : "Registrar Proveedor"}</h5>
             </div>
             <div className="card-body">
@@ -196,7 +196,7 @@ export  function Proveedores() {
                 </div>
 
                 <div className="d-flex gap-2">
-                  <button type="submit" className="btn btn-primary w-100" disabled={submitting}>
+                  <button type="submit" className="btn btn-dark w-100" disabled={submitting}>
                     {isEditing ? "Actualizar" : "Registrar"}
                   </button>
                   {isEditing && (

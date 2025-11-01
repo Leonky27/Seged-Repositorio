@@ -1,7 +1,7 @@
 import { NavBar } from "../components/NavBar";
-import { Clientes } from "../Admin/Clientes";
+import { Ventas } from "../Admin/Ventas";
 
-export const ClienteRoute = () => {
+export const VentasRoute = () => {
   return (
     <div
       className="d-flex flex-column"
@@ -11,11 +11,8 @@ export const ClienteRoute = () => {
             <NavBar/>
       </div>
       <div style={{ height: "83%", overflow: "auto" }}>
-        <Clientes/>
+        <Ventas/>
       </div>
     </div>
   );
 };
-
-
-
