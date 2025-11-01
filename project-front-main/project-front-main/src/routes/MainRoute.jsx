@@ -1,7 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
 import { Login } from '../Main/Login'
 import { ClienteRoute } from './ClienteRoute'
-import RequireAuth from '../Auth/RequireAuth'
+import RequireAuth from '../auth/RequireAuth'
 import { CategoriaRoute } from './CategoriaRoute'
 import { ProveedorRoute } from './ProveedorRoute'
 import { Register } from '../Main/Register'
