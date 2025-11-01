@@ -1,5 +1,5 @@
 import { NavBar } from "../components/NavBar";
-import { Inicio } from "../Admin/Inicio";
+import { Inicio } from "../admin/Inicio";
 
 export const InicioRoute = () => {
   return (

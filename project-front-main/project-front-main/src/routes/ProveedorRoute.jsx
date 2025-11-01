@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import { NavBar } from "../components/NavBar";
-import { Proveedores } from "../Admin/Proveedores";
+import { Proveedores } from "../admin/Proveedores";
 
 export const ProveedorRoute = () => {
   return (

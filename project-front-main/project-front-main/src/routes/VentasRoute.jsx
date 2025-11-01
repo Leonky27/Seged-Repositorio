@@ -1,5 +1,5 @@
 import { NavBar } from "../components/NavBar";
-import { Ventas } from "../Admin/Ventas";
+import { Ventas } from "../admin/Ventas";
 
 export const VentasRoute = () => {
   return (

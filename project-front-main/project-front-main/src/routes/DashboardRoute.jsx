@@ -1,5 +1,5 @@
 import { NavBar } from "../components/NavBar";
-import { Dashboard } from "../Admin/Dashboard";
+import { Dashboard } from "../admin/Dashboard";
 
 export const DashboardRoute = () => {
   return (

@@ -1,5 +1,5 @@
 import { NavBar } from "../components/NavBar";
-import { Categoria } from "../Admin/Categoria";
+import { Categoria } from "../admin/Categoria";
 
 export const CategoriaRoute = () => {
   return (

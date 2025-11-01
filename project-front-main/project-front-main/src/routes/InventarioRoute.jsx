@@ -1,5 +1,5 @@
 import { NavBar } from "../components/NavBar";
-import { Inventario } from "../Admin/Inventario";
+import { Inventario } from "../admin/Inventario";
 
 export const InventarioRoute = () => {
   return (
