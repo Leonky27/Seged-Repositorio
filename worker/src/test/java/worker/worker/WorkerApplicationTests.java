@@ -1,4 +1,4 @@
-package com.proyecto.worker;
+package worker.worker;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
