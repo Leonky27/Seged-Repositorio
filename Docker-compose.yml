@@ -1,4 +1,24 @@
 services:
+  mysql:
+    image: mysql:8.0
+    container_name: ventas_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: admin123
+      MYSQL_DATABASE: ventas_db
+      MYSQL_USER: ventas_user
+      MYSQL_PASSWORD: ventas123
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - seged_net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
   mongodb:
     image: mongo:7
     container_name: seged_mongo
@@ -11,6 +31,25 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+    networks:
+      - seged_net
+
+  ventas-backend:
+    build:
+      context: ./worker
+      dockerfile: Dockerfile
+    container_name: ventas_backend
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/ventas_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: ventas_user
+      SPRING_DATASOURCE_PASSWORD: ventas123
+    ports:
+      - "8081:8081"
+    depends_on:
+      mysql:
+        condition: service_healthy
     networks:
       - seged_net
 
@@ -47,6 +86,7 @@ services:
 
 volumes:
   mongo_data:
+  mysql_data:
 
 networks:
   seged_net:
