@@ -32,7 +32,6 @@ public class HistorialCambio {
     @Column(columnDefinition = "TEXT")
     private String cambios;
 
-    // Almacenar JSON como String para estado anterior y actual
     @Column(name = "estado_anterior", columnDefinition = "JSON")
     @JdbcTypeCode(SqlTypes.JSON)
     private JsonNode estadoAnterior;

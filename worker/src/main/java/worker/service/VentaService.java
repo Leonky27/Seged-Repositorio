@@ -78,10 +78,8 @@ public class VentaService {
         Venta venta = ventaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Venta no encontrada con id: " + id));
 
-        // Guardar estado anterior para historial
         JsonNode estadoAnterior = objectMapper.valueToTree(venta);
 
-        // Actualizar campos básicos
         if (request.getCliente() != null) {
             venta.setCliente(mapToClienteInfo(request.getCliente()));
         }
@@ -98,22 +96,17 @@ public class VentaService {
             venta.setEstado(EstadoVenta.valueOf(request.getEstado().toUpperCase()));
         }
 
-        // Actualizar detalles si vienen en la petición
         if (request.getDetalles() != null) {
-            // Limpiar detalles existentes
             venta.getDetalles().clear();
 
-            // Agregar nuevos detalles
             for (DetalleVentaDTO detalleDTO : request.getDetalles()) {
                 DetalleVenta detalle = mapToDetalleVenta(detalleDTO);
                 venta.agregarDetalle(detalle);
             }
         }
 
-        // Guardar estado actual
         JsonNode estadoActual = objectMapper.valueToTree(venta);
 
-        // Crear registro de historial
         HistorialCambio historial = HistorialCambio.builder()
                 .fechaModificacion(LocalDateTime.now())
                 .usuarioModifico(usuarioModifico)
@@ -162,9 +155,7 @@ public class VentaService {
         return mapToResponseDTO(ventaActualizada);
     }
 
-    // ==================== MÉTODOS DE MAPEO ====================
 
-    // Mapeo de Cliente
     private ClienteInfo mapToClienteInfo(VentaRequestDTO.ClienteDTO dto) {
         if (dto == null) return null;
         return ClienteInfo.builder()
@@ -183,7 +174,6 @@ public class VentaService {
                 .build();
     }
 
-    // Mapeo de Usuario
     private UsuarioInfo mapToUsuarioInfo(VentaRequestDTO.UsuarioDTO dto) {
         if (dto == null) return null;
         return UsuarioInfo.builder()
@@ -202,7 +192,6 @@ public class VentaService {
                 .build();
     }
 
-    // Mapeo de Información de Venta
     private InformacionVenta mapToInformacionVenta(VentaRequestDTO.InformacionVentaDTO dto) {
         if (dto == null) return null;
         return InformacionVenta.builder()
@@ -223,7 +212,6 @@ public class VentaService {
                 .build();
     }
 
-    // Mapeo de Cálculos
     private Calculos mapToCalculos(VentaRequestDTO.CalculosDTO dto) {
         if (dto == null) return null;
         return Calculos.builder()
@@ -242,7 +230,6 @@ public class VentaService {
                 .build();
     }
 
-    // Mapeo de Historial
     private VentaResponseDTO.HistorialDTO mapToHistorialDTO(HistorialCambio historial) {
         if (historial == null) return null;
         return VentaResponseDTO.HistorialDTO.builder()
@@ -255,7 +242,6 @@ public class VentaService {
                 .build();
     }
 
-    // Mapeo de Detalles de Venta
     private DetalleVenta mapToDetalleVenta(DetalleVentaDTO dto) {
         if (dto == null) return null;
         return DetalleVenta.builder()
@@ -280,7 +266,6 @@ public class VentaService {
                 .build();
     }
 
-    // Mapeo de Venta completa
     private VentaResponseDTO mapToResponseDTO(Venta venta) {
         return VentaResponseDTO.builder()
                 .id(venta.getId())
