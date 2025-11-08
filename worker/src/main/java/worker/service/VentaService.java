@@ -2,20 +2,15 @@ package worker.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import worker.dto.DetalleVentaDTO;
 import worker.dto.VentaRequestDTO;
 import worker.dto.VentaResponseDTO;
-import worker.model.Calculos;
-import worker.model.ClienteInfo;
-import worker.model.EstadoVenta;
-import worker.model.HistorialCambio;
-import worker.model.InformacionVenta;
-import worker.model.UsuarioInfo;
-import worker.model.Ventas;
+import worker.model.*;
 import worker.repository.VentaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,36 +22,36 @@ public class VentaService {
     private final VentaRepository ventaRepository;
     private final ObjectMapper objectMapper;
 
-    // ===========================
-    // CREAR VENTA
-    // ===========================
     @Transactional
     public VentaResponseDTO crearVenta(VentaRequestDTO request) {
-        Ventas venta = Ventas.builder()
+        Venta venta = Venta.builder()
                 .cliente(mapToClienteInfo(request.getCliente()))
                 .usuario(mapToUsuarioInfo(request.getUsuario()))
                 .informacionVenta(mapToInformacionVenta(request.getInformacionVenta()))
                 .calculos(mapToCalculos(request.getCalculos()))
-                .estado(safeEstado(request.getEstado(), EstadoVenta.BORRADOR))
+                .estado(EstadoVenta.valueOf(request.getEstado() != null ?
+                        request.getEstado().toUpperCase() : "BORRADOR"))
                 .build();
 
-        Ventas ventaGuardada = ventaRepository.save(venta);
+        // Agregar detalles si existen
+        if (request.getDetalles() != null && !request.getDetalles().isEmpty()) {
+            for (DetalleVentaDTO detalleDTO : request.getDetalles()) {
+                DetalleVenta detalle = mapToDetalleVenta(detalleDTO);
+                venta.agregarDetalle(detalle);
+            }
+        }
+
+        Venta ventaGuardada = ventaRepository.save(venta);
         return mapToResponseDTO(ventaGuardada);
     }
 
-    // ===========================
-    // OBTENER POR ID (con historial)
-    // ===========================
     @Transactional(readOnly = true)
     public VentaResponseDTO obtenerVentaPorId(Long id) {
-        Ventas venta = ventaRepository.findByIdWithHistorial(id)
+        Venta venta = ventaRepository.findByIdWithHistorial(id)
                 .orElseThrow(() -> new RuntimeException("Venta no encontrada con id: " + id));
         return mapToResponseDTO(venta);
     }
 
-    // ===========================
-    // LISTAR TODAS
-    // ===========================
     @Transactional(readOnly = true)
     public List<VentaResponseDTO> obtenerTodasLasVentas() {
         return ventaRepository.findAll().stream()
@@ -64,38 +59,29 @@ public class VentaService {
                 .collect(Collectors.toList());
     }
 
-    // ===========================
-    // FILTRAR POR ESTADO (enum)
-    // ===========================
     @Transactional(readOnly = true)
     public List<VentaResponseDTO> obtenerVentasPorEstado(String estado) {
-        EstadoVenta ev = safeEstado(estado, null);
-        return ventaRepository.findByEstado(ev).stream()
+        return ventaRepository.findByEstado(estado.toUpperCase()).stream()
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
     }
 
-    // ===========================
-    // FILTRAR POR CLIENTE (embeddable)
-    // ===========================
     @Transactional(readOnly = true)
     public List<VentaResponseDTO> obtenerVentasPorCliente(Long clienteId) {
-        return ventaRepository.findByClienteClienteId(clienteId).stream()
+        return ventaRepository.findByClienteId(clienteId).stream()
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
     }
 
-    // ===========================
-    // ACTUALIZAR VENTA
-    // ===========================
     @Transactional
     public VentaResponseDTO actualizarVenta(Long id, VentaRequestDTO request, String usuarioModifico) {
-        Ventas venta = ventaRepository.findById(id)
+        Venta venta = ventaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Venta no encontrada con id: " + id));
 
-        // Estado anterior (snapshot)
+        // Guardar estado anterior para historial
         JsonNode estadoAnterior = objectMapper.valueToTree(venta);
 
+        // Actualizar campos básicos
         if (request.getCliente() != null) {
             venta.setCliente(mapToClienteInfo(request.getCliente()));
         }
@@ -109,11 +95,25 @@ public class VentaService {
             venta.setCalculos(mapToCalculos(request.getCalculos()));
         }
         if (request.getEstado() != null) {
-            venta.setEstado(safeEstado(request.getEstado(), venta.getEstado()));
+            venta.setEstado(EstadoVenta.valueOf(request.getEstado().toUpperCase()));
         }
 
+        // Actualizar detalles si vienen en la petición
+        if (request.getDetalles() != null) {
+            // Limpiar detalles existentes
+            venta.getDetalles().clear();
+
+            // Agregar nuevos detalles
+            for (DetalleVentaDTO detalleDTO : request.getDetalles()) {
+                DetalleVenta detalle = mapToDetalleVenta(detalleDTO);
+                venta.agregarDetalle(detalle);
+            }
+        }
+
+        // Guardar estado actual
         JsonNode estadoActual = objectMapper.valueToTree(venta);
 
+        // Crear registro de historial
         HistorialCambio historial = HistorialCambio.builder()
                 .fechaModificacion(LocalDateTime.now())
                 .usuarioModifico(usuarioModifico)
@@ -124,13 +124,10 @@ public class VentaService {
 
         venta.agregarHistorial(historial);
 
-        Ventas ventaActualizada = ventaRepository.save(venta);
+        Venta ventaActualizada = ventaRepository.save(venta);
         return mapToResponseDTO(ventaActualizada);
     }
 
-    // ===========================
-    // ELIMINAR VENTA
-    // ===========================
     @Transactional
     public void eliminarVenta(Long id) {
         if (!ventaRepository.existsById(id)) {
@@ -139,106 +136,41 @@ public class VentaService {
         ventaRepository.deleteById(id);
     }
 
-    // ===========================
-    // CAMBIAR ESTADO
-    // ===========================
     @Transactional
     public VentaResponseDTO cambiarEstado(Long id, String nuevoEstado, String usuarioModifico) {
-        Ventas venta = ventaRepository.findById(id)
+        Venta venta = ventaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Venta no encontrada con id: " + id));
 
-        String estadoAnteriorStr = venta.getEstado() != null ? venta.getEstado().name() : "NULO";
+        String estadoAnteriorStr = venta.getEstado().name();
         JsonNode estadoAnterior = objectMapper.valueToTree(venta);
 
-        EstadoVenta evNuevo = safeEstado(nuevoEstado, venta.getEstado());
-        venta.setEstado(evNuevo);
+        venta.setEstado(EstadoVenta.valueOf(nuevoEstado.toUpperCase()));
 
         JsonNode estadoActual = objectMapper.valueToTree(venta);
 
         HistorialCambio historial = HistorialCambio.builder()
                 .fechaModificacion(LocalDateTime.now())
                 .usuarioModifico(usuarioModifico)
-                .cambios(String.format("Cambio de estado de %s a %s", estadoAnteriorStr, evNuevo.name()))
+                .cambios(String.format("Cambio de estado de %s a %s", estadoAnteriorStr, nuevoEstado))
                 .estadoAnterior(estadoAnterior)
                 .estadoActual(estadoActual)
                 .build();
 
         venta.agregarHistorial(historial);
 
-        Ventas ventaActualizada = ventaRepository.save(venta);
+        Venta ventaActualizada = ventaRepository.save(venta);
         return mapToResponseDTO(ventaActualizada);
     }
 
-    // ===========================
-    // AUX: convertir String -> EstadoVenta con default
-    // ===========================
-    private EstadoVenta safeEstado(String raw, EstadoVenta defecto) {
-        if (raw == null) return defecto;
-        try {
-            return EstadoVenta.valueOf(raw.toUpperCase());
-        } catch (IllegalArgumentException ex) {
-            throw new RuntimeException("Estado inválido: " + raw);
-        }
-    }
+    // ==================== MÉTODOS DE MAPEO ====================
 
-    // ===========================
-    // MAPEOS REQUEST -> ENTIDAD
-    // ===========================
+    // Mapeo de Cliente
     private ClienteInfo mapToClienteInfo(VentaRequestDTO.ClienteDTO dto) {
         if (dto == null) return null;
         return ClienteInfo.builder()
                 .clienteId(dto.getClienteId())
                 .nombre(dto.getNombre())
                 .docId(dto.getDocId())
-                .build();
-    }
-
-    private UsuarioInfo mapToUsuarioInfo(VentaRequestDTO.UsuarioDTO dto) {
-        if (dto == null) return null;
-        return UsuarioInfo.builder()
-                .usuarioId(dto.getUsuarioId())
-                .nombre(dto.getNombre())
-                .rol(dto.getRol())
-                .build();
-    }
-
-    private InformacionVenta mapToInformacionVenta(VentaRequestDTO.InformacionVentaDTO dto) {
-        if (dto == null) return null;
-        return InformacionVenta.builder()
-                .numero(dto.getNumero())
-                .fecha(dto.getFecha())
-                .metodoPago(dto.getMetodoPago())
-                .tipo(dto.getTipo())
-                .build();
-    }
-
-    private Calculos mapToCalculos(VentaRequestDTO.CalculosDTO dto) {
-        if (dto == null) return null;
-        return Calculos.builder()
-                .subtotal(dto.getSubtotal())
-                .impuestos(dto.getImpuestos())
-                .total(dto.getTotal())
-                .build();
-    }
-
-    // ===========================
-    // MAPEOS ENTIDAD -> RESPONSE
-    // ===========================
-    private VentaResponseDTO mapToResponseDTO(Ventas venta) {
-        var historialList = venta.getHistorial() == null ? List.<HistorialCambio>of() : venta.getHistorial();
-
-        return VentaResponseDTO.builder()
-                .id(venta.getId())
-                .cliente(mapToClienteDTO(venta.getCliente()))
-                .usuario(mapToUsuarioDTO(venta.getUsuario()))
-                .informacionVenta(mapToInformacionVentaDTO(venta.getInformacionVenta()))
-                .calculos(mapToCalculosDTO(venta.getCalculos()))
-                .estado(venta.getEstado() != null ? venta.getEstado().name() : null)
-                .fechaCreacion(venta.getFechaCreacion())
-                .fechaActualizacion(venta.getFechaActualizacion())
-                .historial(historialList.stream()
-                        .map(this::mapToHistorialDTO)
-                        .collect(Collectors.toList()))
                 .build();
     }
 
@@ -251,12 +183,33 @@ public class VentaService {
                 .build();
     }
 
+    // Mapeo de Usuario
+    private UsuarioInfo mapToUsuarioInfo(VentaRequestDTO.UsuarioDTO dto) {
+        if (dto == null) return null;
+        return UsuarioInfo.builder()
+                .usuarioId(dto.getUsuarioId())
+                .nombre(dto.getNombre())
+                .rol(dto.getRol())
+                .build();
+    }
+
     private VentaResponseDTO.UsuarioDTO mapToUsuarioDTO(UsuarioInfo usuario) {
         if (usuario == null) return null;
         return VentaResponseDTO.UsuarioDTO.builder()
                 .usuarioId(usuario.getUsuarioId())
                 .nombre(usuario.getNombre())
                 .rol(usuario.getRol())
+                .build();
+    }
+
+    // Mapeo de Información de Venta
+    private InformacionVenta mapToInformacionVenta(VentaRequestDTO.InformacionVentaDTO dto) {
+        if (dto == null) return null;
+        return InformacionVenta.builder()
+                .numero(dto.getNumero())
+                .fecha(dto.getFecha())
+                .metodoPago(dto.getMetodoPago())
+                .tipo(dto.getTipo())
                 .build();
     }
 
@@ -270,6 +223,16 @@ public class VentaService {
                 .build();
     }
 
+    // Mapeo de Cálculos
+    private Calculos mapToCalculos(VentaRequestDTO.CalculosDTO dto) {
+        if (dto == null) return null;
+        return Calculos.builder()
+                .subtotal(dto.getSubtotal())
+                .impuestos(dto.getImpuestos())
+                .total(dto.getTotal())
+                .build();
+    }
+
     private VentaResponseDTO.CalculosDTO mapToCalculosDTO(Calculos calculos) {
         if (calculos == null) return null;
         return VentaResponseDTO.CalculosDTO.builder()
@@ -279,6 +242,7 @@ public class VentaService {
                 .build();
     }
 
+    // Mapeo de Historial
     private VentaResponseDTO.HistorialDTO mapToHistorialDTO(HistorialCambio historial) {
         if (historial == null) return null;
         return VentaResponseDTO.HistorialDTO.builder()
@@ -288,6 +252,51 @@ public class VentaService {
                 .cambios(historial.getCambios())
                 .estadoAnterior(historial.getEstadoAnterior())
                 .estadoActual(historial.getEstadoActual())
+                .build();
+    }
+
+    // Mapeo de Detalles de Venta
+    private DetalleVenta mapToDetalleVenta(DetalleVentaDTO dto) {
+        if (dto == null) return null;
+        return DetalleVenta.builder()
+                .productoId(dto.getProductoId())
+                .nombreProducto(dto.getNombreProducto())
+                .cantidad(dto.getCantidad())
+                .precioUnitario(dto.getPrecioUnitario())
+                .descuento(dto.getDescuento() != null ? dto.getDescuento() : BigDecimal.ZERO)
+                .build();
+    }
+
+    private DetalleVentaDTO mapToDetalleVentaDTO(DetalleVenta detalle) {
+        if (detalle == null) return null;
+        return DetalleVentaDTO.builder()
+                .id(detalle.getId())
+                .productoId(detalle.getProductoId())
+                .nombreProducto(detalle.getNombreProducto())
+                .cantidad(detalle.getCantidad())
+                .precioUnitario(detalle.getPrecioUnitario())
+                .descuento(detalle.getDescuento())
+                .subtotal(detalle.getSubtotal())
+                .build();
+    }
+
+    // Mapeo de Venta completa
+    private VentaResponseDTO mapToResponseDTO(Venta venta) {
+        return VentaResponseDTO.builder()
+                .id(venta.getId())
+                .cliente(mapToClienteDTO(venta.getCliente()))
+                .usuario(mapToUsuarioDTO(venta.getUsuario()))
+                .informacionVenta(mapToInformacionVentaDTO(venta.getInformacionVenta()))
+                .calculos(mapToCalculosDTO(venta.getCalculos()))
+                .estado(venta.getEstado().name())
+                .fechaCreacion(venta.getFechaCreacion())
+                .fechaActualizacion(venta.getFechaActualizacion())
+                .historial(venta.getHistorial().stream()
+                        .map(this::mapToHistorialDTO)
+                        .collect(Collectors.toList()))
+                .detalles(venta.getDetalles().stream()
+                        .map(this::mapToDetalleVentaDTO)
+                        .collect(Collectors.toList()))
                 .build();
     }
 }

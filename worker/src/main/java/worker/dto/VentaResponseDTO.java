@@ -22,6 +22,8 @@ public class VentaResponseDTO {
     private LocalDateTime fechaActualizacion;
     private List<HistorialDTO> historial;
 
+    private List<DetalleVentaDTO> detalles;
+
     @Getter
     @Setter
     @NoArgsConstructor

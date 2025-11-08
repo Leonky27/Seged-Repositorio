@@ -21,7 +21,7 @@ public class HistorialCambio {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "venta_id", nullable = false)
-    private Ventas venta;
+    private Venta venta;
 
     @Column(name = "fecha_modificacion", nullable = false)
     private LocalDateTime fechaModificacion;

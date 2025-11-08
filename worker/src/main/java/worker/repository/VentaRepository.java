@@ -1,38 +1,44 @@
 package worker.repository;
 
+import worker.model.Venta;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import worker.model.EstadoVenta;
-import worker.model.Ventas;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface VentaRepository extends JpaRepository<Ventas, Long> {
+public interface VentaRepository extends JpaRepository<Venta, Long> {
 
-    // ---- Búsquedas por campos embebidos (derived queries)
-    Optional<Ventas> findByInformacionVentaNumero(String numero);
+    // Buscar por número de venta
+    Optional<Venta> findByInformacionVentaNumero(String numero);
 
-    // Estado es un enum, no String
-    List<Ventas> findByEstado(EstadoVenta estado);
+    // Buscar por estado (usando String directamente)
+    @Query("SELECT v FROM Venta v WHERE CAST(v.estado AS string) = :estado")
+    List<Venta> findByEstado(@Param("estado") String estado);
 
-    // ClienteInfo.clienteId (Embeddable)
-    List<Ventas> findByClienteClienteId(Long clienteId);
+    // Buscar por cliente
+    @Query("SELECT v FROM Venta v WHERE v.cliente.clienteId = :clienteId")
+    List<Venta> findByClienteId(@Param("clienteId") Long clienteId);
 
-    // UsuarioInfo.usuarioId (Embeddable)
-    List<Ventas> findByUsuarioUsuarioId(Long usuarioId);
+    // Buscar por usuario
+    @Query("SELECT v FROM Venta v WHERE v.usuario.usuarioId = :usuarioId")
+    List<Venta> findByUsuarioId(@Param("usuarioId") Long usuarioId);
 
-    // Rango de fechas (InformacionVenta.fecha)
-    List<Ventas> findByInformacionVentaFechaBetween(LocalDateTime fechaInicio, LocalDateTime fechaFin);
+    // Buscar por rango de fechas
+    @Query("SELECT v FROM Venta v WHERE v.informacionVenta.fecha BETWEEN :fechaInicio AND :fechaFin")
+    List<Venta> findByFechaRange(
+            @Param("fechaInicio") LocalDateTime fechaInicio,
+            @Param("fechaFin") LocalDateTime fechaFin
+    );
 
-    // Método de pago (InformacionVenta.metodoPago)
-    List<Ventas> findByInformacionVentaMetodoPago(String metodoPago);
+    // Buscar por método de pago
+    @Query("SELECT v FROM Venta v WHERE v.informacionVenta.metodoPago = :metodoPago")
+    List<Venta> findByMetodoPago(@Param("metodoPago") String metodoPago);
 
-    // ---- Traer historial con fetch join (usar el nombre de la entidad: Ventas)
-    @Query("select v from Ventas v left join fetch v.historial where v.id = :id")
-    Optional<Ventas> findByIdWithHistorial(@Param("id") Long id);
+    // Buscar ventas con historial (EAGER FETCH)
+    @Query("SELECT DISTINCT v FROM Venta v LEFT JOIN FETCH v.historial LEFT JOIN FETCH v.detalles WHERE v.id = :id")
+    Optional<Venta> findByIdWithHistorial(@Param("id") Long id);
 }

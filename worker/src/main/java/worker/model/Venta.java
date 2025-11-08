@@ -2,7 +2,6 @@ package worker.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Ventas {
+public class Venta {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -61,6 +60,10 @@ public class Ventas {
     @Builder.Default
     private List<HistorialCambio> historial = new ArrayList<>();
 
+    @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<DetalleVenta> detalles = new ArrayList<>();
+
     @Column(name = "fecha_creacion", nullable = false, updatable = false)
     private LocalDateTime fechaCreacion;
 
@@ -82,7 +85,24 @@ public class Ventas {
     }
 
     public void agregarHistorial(HistorialCambio cambio) {
-        historial.add(cambio);
-        cambio.setVenta(this);
+        if (cambio != null) {
+            historial.add(cambio);
+            cambio.setVenta(this);
+        }
+    }
+
+    public void agregarDetalle(DetalleVenta detalle) {
+        if (detalle != null) {
+            detalles.add(detalle);
+            detalle.setVenta(this);
+        }
+    }
+
+
+    public void eliminarDetalle(DetalleVenta detalle) {
+        if (detalle != null) {
+            detalles.remove(detalle);
+            detalle.setVenta(null);
+        }
     }
 }
