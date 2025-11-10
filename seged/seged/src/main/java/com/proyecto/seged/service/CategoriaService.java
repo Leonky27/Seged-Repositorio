@@ -25,4 +25,8 @@ public class CategoriaService {
         return categoriaRepository.findById(id);
     }
 
+    public void delete(String id) {
+        categoriaRepository.deleteById(id);
+    }
+
 }

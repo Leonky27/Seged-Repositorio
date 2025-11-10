@@ -39,6 +39,6 @@ public class ProveedorController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable String id) {
         proveedorService.delete(id);
-        return new ResponseEntity<>("Proveedor eliminado con exito", HttpStatus.OK);
+        return new ResponseEntity<>("Proveedor eliminado con éxito", HttpStatus.OK);
     }
 }

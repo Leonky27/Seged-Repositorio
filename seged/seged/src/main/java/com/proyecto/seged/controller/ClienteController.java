@@ -23,7 +23,7 @@ public class ClienteController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Cliente>> getUsuarios() {
+    public ResponseEntity<List<Cliente>> getClientes() {
         return new ResponseEntity<>(clienteService.getCliente(), HttpStatus.OK);
     }
 
@@ -40,7 +40,7 @@ public class ClienteController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable String id) {
         clienteService.delete(id);
-        return new ResponseEntity<>("usuario eliminado", HttpStatus.OK);
+        return new ResponseEntity<>("Cliente eliminado", HttpStatus.OK);
     }
 
 }

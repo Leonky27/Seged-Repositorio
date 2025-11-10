@@ -8,10 +8,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.Date;
 import java.util.List;
 
-@Document(collection = "inventario")
-public class inventario {
-    @Getter
-    @Setter
+@Getter
+@Setter
+@Document(collection = "Inventario")
+public class Inventario {
+
     @Id
     private String id;
     private String productoId;
@@ -36,7 +37,7 @@ public class inventario {
         private String motivo;
         private String usuarioId;
         private String referenciaFactura;
-
         private int stockNuevo;
+
     }
 }
