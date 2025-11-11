@@ -11,19 +11,19 @@ import java.time.Instant;
 @Getter
 @Setter
 @AllArgsConstructor
-@Document(collection = "Ventas")
-public class Ventas {
+@Document(collection = "Compras")
+public class Compras {
 
     @Id
     private String id;
 
-    private String cliente_id;
+    private String proveedor_id;
 
     private String usuario_id;
 
-    private InformacionVenta informacionVenta;
+    private InformacionCompra informacionCompra;
 
-    private Calculos calculos;
+    private Calculo calculo;
 
     private String estado;
 
@@ -34,23 +34,22 @@ public class Ventas {
     @Getter
     @Setter
     @AllArgsConstructor
-    public static class InformacionVenta {
+    public static class InformacionCompra {
 
         private String numero;
         private Instant fecha;
         private String metodoPago;
-
+        private String tipo;
     }
 
     @Getter
     @Setter
     @AllArgsConstructor
-    public static class Calculos {
+    public static class Calculo {
 
-        private double subTotal;
+        private double subtotal;
         private double impuestos;
+        private double descuentos;
         private double total;
-
     }
-
 }

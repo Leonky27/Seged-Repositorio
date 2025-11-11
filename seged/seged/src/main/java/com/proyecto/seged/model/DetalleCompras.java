@@ -9,13 +9,13 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Getter
 @Setter
 @AllArgsConstructor
-@Document(collection = "DetalleVentas")
-public class DetalleVentas {
+@Document(collection = "DetalleCompras")
+public class DetalleCompras {
 
     @Id
     private String id;
 
-    private String venta_id;
+    private String compra_id;
 
     private String producto_id;
 
@@ -23,14 +23,11 @@ public class DetalleVentas {
 
     private double precioUnitario;
 
-    private Descuento descuento;
+    private Descuentos descuentos;
 
     private double subtotal;
 
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    public static class Descuento {
+    public static class Descuentos {
 
         private String tipo;
         private double valor;
