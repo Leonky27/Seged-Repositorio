@@ -11,11 +11,18 @@ export function Register() {
     password: "",
     confirm: "",
   });
+  const [roles, setRoles] = useState(["USER"]);
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState(null);
 
   const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
+  const toggleRole = (role) => {
+    setRoles((prev) =>
+      prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role]
+    );
+  };
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -23,10 +30,11 @@ export function Register() {
 
     if (!form.username.trim()) return setErr("El usuario es obligatorio.");
     if (form.password !== form.confirm) return setErr("Las contraseñas no coinciden.");
+    if (roles.length === 0) return setErr("Selecciona al menos un rol.");
 
     setLoading(true);
     try {
-      await register(form.username, form.password);
+      await register(form.username, form.password, roles);
       navigate("/clientes", { replace: true });
     } catch (e) {
       const msg = e?.response?.data?.message || "No se pudo registrar. Intenta de nuevo.";
@@ -48,7 +56,6 @@ export function Register() {
       `}</style>
 
       <div className="d-flex" style={{ minHeight: '100vh' }}>
-        {/* Área izquierda - 65% Hero Section (oculta en móviles) */}
         <div
           className="register-left"
           style={{
@@ -84,9 +91,8 @@ export function Register() {
           </div>
         </div>
 
-        {/* Área derecha - 35% Registro (100% en móviles) */}
         <div className="register-right d-flex align-items-center justify-content-center p-4 bg-light">
-          <div className="w-100" style={{ maxWidth: '400px' }}>
+          <div className="w-100" style={{ maxWidth: '420px' }}>
             <div className="card shadow">
               <div className="card-body">
                 <h2 className="text-center mb-3">Crear cuenta</h2>
@@ -148,11 +154,43 @@ export function Register() {
                     />
                   </div>
 
+                  <div className="mb-3">
+                    <label className="form-label">Roles</label>
+                    <div className="form-check">
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        id="role-user"
+                        checked={roles.includes("USER")}
+                        onChange={() => toggleRole("USER")}
+                        disabled={loading}
+                      />
+                      <label className="form-check-label" htmlFor="role-user">USER</label>
+                    </div>
+                    <div className="form-check">
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        id="role-admin"
+                        checked={roles.includes("ADMIN")}
+                        onChange={() => toggleRole("ADMIN")}
+                        disabled={loading}
+                      />
+                      <label className="form-check-label" htmlFor="role-admin">ADMIN</label>
+                    </div>
+                    <small className="text-muted">Selecciona al menos un rol.</small>
+                  </div>
+
                   <button type="submit" className="btn btn-dark w-100" disabled={loading}>
                     {loading ? "Creando..." : "Crear cuenta"}
                   </button>
                 </form>
 
+                <div className="text-center mt-3">
+                  <small>
+                    ¿Ya tienes cuenta? <Link to="/login">Inicia sesión</Link>
+                  </small>
+                </div>
               </div>
             </div>
 

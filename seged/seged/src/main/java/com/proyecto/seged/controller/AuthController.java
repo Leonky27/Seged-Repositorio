@@ -6,6 +6,7 @@ import com.proyecto.seged.dto.RegisterRequest;
 import com.proyecto.seged.model.Usuario;
 import com.proyecto.seged.repository.UsuarioRepository;
 import com.proyecto.seged.security.JwtService;
+import com.proyecto.seged.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,7 +31,6 @@ public class AuthController {
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
     }
-
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
         if (usuarioRepository.existsByUsername(request.getUsername())) {

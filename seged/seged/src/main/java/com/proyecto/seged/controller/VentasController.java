@@ -31,7 +31,7 @@ public class VentasController {
         return new ResponseEntity<>(ventasService.get(id), HttpStatus.OK);
     }
 
-    @PutMapping("/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable String id) {
         ventasService.delete(id);
         return new ResponseEntity<>("Venta eliminada con éxito", HttpStatus.OK);

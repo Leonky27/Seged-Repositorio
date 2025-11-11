@@ -19,11 +19,12 @@ export function AuthProvider({ children }) {
     return data.token;
   };
 
-  const register = async (username, password) => {
-    const { data } = await api.post("/api/auth/register", { username, password });
-    sessionStorage.setItem("token", data.token);
-    setToken(data.token);
-  };
+const register = async (username, password, roles = ["USER"]) => {
+  const { data } = await api.post("/api/auth/register", { username, password, roles });
+  sessionStorage.setItem("token", data.token);
+  setToken(data.token);
+};
+
 
   const logout = () => {
     sessionStorage.removeItem("token");
