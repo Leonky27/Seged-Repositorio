@@ -10,12 +10,9 @@ import java.util.List;
 public interface ProductoRepository extends MongoRepository<Producto, String> {
 
 
-    List<Producto> findByNombre(String nombre);
-
-    List<Producto> findByPreciounitarioBetween(Double min, Double max);
-
-    List<Producto> findByCategoriaNombre(String nombreCategoria);
+    List<Producto> findByNombreContainingIgnoreCase(String nombre);
 
 
-
+    List<Producto> findByDescripcionContainingIgnoreCase(String descripcion);
 }
+

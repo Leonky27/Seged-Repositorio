@@ -2,7 +2,9 @@ package com.proyecto.seged.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
@@ -14,30 +16,45 @@ import java.util.List;
 public class Inventario {
 
     @Id
-    private String id;
-    private String productoId;
-    private InformacionProducto informacionProducto;
-    private int stockActual;
-    private int stockMinimo;
-    private int stockMaximo;
+    private ObjectId id;
+
+
+    @DBRef
+    private Producto producto;
+
+    @DBRef
+    private Categoria categoria;
+
+
+    private Double stockActual;
+    private Double stockMinimo;
+    private Double stockMaximo;
+
+
+    private String almacen;
+    private String pasillo;
+
+
+
     private List<Movimiento> movimientos;
-    private Date fechaUltimaActualizacion;
-    private boolean activo;
 
-    public static class InformacionProducto {
-        private String nombre;
-        private String categoriaid;
+    private Date fechaUltimaActualizacion = new Date();
+    private Boolean activo = true;
 
-    }
 
+    @Getter @Setter
     public static class Movimiento {
-        private Date fechaMovimiento;
+        private Date fechaMovimiento = new Date();
         private String tipoMovimiento;
-        private int cantidad;
+        private Double cantidad;
         private String motivo;
-        private String usuarioId;
-        private String referenciaFactura;
-        private int stockNuevo;
-
+        private ObjectId usuarioId;
+        private ObjectId ventaId;
+        private ObjectId compraId;
+        private Double stockAnterior;
+        private Double stockNuevo;
     }
 }
+
+
+
