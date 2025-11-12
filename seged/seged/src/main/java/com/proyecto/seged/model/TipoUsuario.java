@@ -11,15 +11,23 @@ import java.util.Map;
 
 @Getter
 @Setter
-@Document(collection = "Contactos")
-public class Contacto {
+@Document(collection = "TipoUsuarioRepository")
+public class TipoUsuario {
 
 
     @Id
     private String id;
 
 
-    private String tipo;
+    private Rol tipo;
+
+    public enum Rol {
+        Admnistrador,
+        Vendedor,
+        Cliente,
+        Provedor,
+    }
+
 
     private Map<String, Object> informacion_contacto;
 
