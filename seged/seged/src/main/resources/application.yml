@@ -11,12 +11,20 @@ spring:
       password: ${SPRING_DATA_MONGODB_PASSWORD:admin123}
       authentication-database: admin
 
+    redis:
+      host: localhost
+      port: 6380
+      password: ${SPRING_DATA_REDIS_PASSWORD:}
+
 server:
   port: 8080
 
+app:
+  session:
+    ttl: PT2M
+
 jwt:
-  secret: ${JWT_SECRET:mi_clave_secreta_super_segura_para_jwt_token_2024}
-  expiration: 86400000  # 24 horas en milisegundos
+  expiration: 28800000
 
 jms:
   queue:

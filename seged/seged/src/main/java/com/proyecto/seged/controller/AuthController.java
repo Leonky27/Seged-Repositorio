@@ -6,12 +6,13 @@ import com.proyecto.seged.dto.RegisterRequest;
 import com.proyecto.seged.model.Usuario;
 import com.proyecto.seged.repository.UsuarioRepository;
 import com.proyecto.seged.security.JwtService;
-import com.proyecto.seged.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import com.proyecto.seged.security.TokenStore;
+import org.springframework.http.HttpHeaders;
 
 import java.util.List;
 
@@ -24,12 +25,14 @@ public class AuthController {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final TokenStore tokenStore;
 
-    public AuthController(AuthenticationManager authenticationManager, UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
+    public AuthController(AuthenticationManager authenticationManager, UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, JwtService jwtService, TokenStore tokenStore) {
         this.authenticationManager = authenticationManager;
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.tokenStore = tokenStore;
     }
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
@@ -52,6 +55,14 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
         );
         String token = jwtService.generateToken(request.getUsername());
+        tokenStore.save(token);
         return ResponseEntity.ok(new AuthResponse(token));
+    }
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) {
+        if (authorization != null && authorization.startsWith("Bearer ")) {
+            tokenStore.delete(authorization.substring(7));
+        }
+        return ResponseEntity.noContent().build();
     }
 }

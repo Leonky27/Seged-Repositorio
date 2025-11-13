@@ -1,4 +1,4 @@
-import  { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import api from "../api/client";
 
 const AuthContext = createContext(null);
@@ -19,20 +19,41 @@ export function AuthProvider({ children }) {
     return data.token;
   };
 
-const register = async (username, password, roles = ["USER"]) => {
-  const { data } = await api.post("/api/auth/register", { username, password, roles });
-  sessionStorage.setItem("token", data.token);
-  setToken(data.token);
-};
+  const register = async (username, password, roles = ["USER"]) => {
+    const { data } = await api.post("/api/auth/register", {
+      username,
+      password,
+      roles,
+    });
+    sessionStorage.setItem("token", data.token);
+    setToken(data.token);
+  };
 
+  const logout = async () => {
+    try {
+      await api.post("/api/auth/logout");
+    } catch (_) {
+    }
 
-  const logout = () => {
     sessionStorage.removeItem("token");
     setToken(null);
+
+    if (window.location.pathname !== "/login") {
+      window.location.replace("/login");
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout, isAuthenticated: !!token }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        token,
+        login,
+        register,
+        logout,
+        isAuthenticated: !!token,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

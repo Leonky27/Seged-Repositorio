@@ -34,6 +34,15 @@ services:
     networks:
       - seged_net
 
+  redis:
+    image: redis:7-alpine
+    container_name: seged_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: [ "redis-server", "--appendonly", "yes" ]
+    networks: [ seged_net ]
+
   ventas-backend:
     build:
       context: ./worker
@@ -60,12 +69,16 @@ services:
     container_name: seged_backend
     restart: unless-stopped
     environment:
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      APP_SESSION_TTL: PT30M
       SPRING_DATA_MONGODB_URI: mongodb://admin:admin123@mongodb:27017/seged?authSource=admin
       JWT_SECRET: ${JWT_SECRET}
     ports:
       - "8080:8080"
     depends_on:
       - mongodb
+      - redis
     networks:
       - seged_net
 
@@ -87,6 +100,7 @@ services:
 volumes:
   mongo_data:
   mysql_data:
+  redis-data:
 
 networks:
   seged_net:
