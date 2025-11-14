@@ -22,9 +22,8 @@ public class DetalleVentasService {
     }
 
     public DetalleVentas get(String id) {
-        return detalleVentasRepository.findById(id);
+        return detalleVentasRepository.findById(id).orElse(null);
     }
-
     public void delete(String id) {
         detalleVentasRepository.deleteById(id);
     }

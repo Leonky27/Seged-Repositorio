@@ -33,7 +33,6 @@ public class VentaService {
                         request.getEstado().toUpperCase() : "BORRADOR"))
                 .build();
 
-        // Agregar detalles si existen
         if (request.getDetalles() != null && !request.getDetalles().isEmpty()) {
             for (DetalleVentaDTO detalleDTO : request.getDetalles()) {
                 DetalleVenta detalle = mapToDetalleVenta(detalleDTO);
@@ -51,6 +50,13 @@ public class VentaService {
                 .orElseThrow(() -> new RuntimeException("Venta no encontrada con id: " + id));
         return mapToResponseDTO(venta);
     }
+    @Transactional
+    public void eliminarVentaPorNumero(String numero) {
+        Venta venta = ventaRepository.findByInformacionVentaNumero(numero)
+                .orElseThrow(() -> new RuntimeException("Venta no encontrada con numero: " + numero));
+        ventaRepository.delete(venta);
+    }
+
 
     @Transactional(readOnly = true)
     public List<VentaResponseDTO> obtenerTodasLasVentas() {

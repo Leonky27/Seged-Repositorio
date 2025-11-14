@@ -15,20 +15,17 @@ import java.util.Date;
 public class Producto {
 
     @Id
-
-    private Date fechadecreacion;
-
     private String id;
+
+    private Date fechadecreacion = new Date(); // sin @Id
 
     private String nombre;
 
     private String descripcion;
 
-    private BigDecimal preciounitario; //ESTO MAPEA UN DECIMAL EN MONGITO
+    private BigDecimal preciounitario;
+
     @DBRef
-
     private Categoria categoria;
-
-
-
 }
+

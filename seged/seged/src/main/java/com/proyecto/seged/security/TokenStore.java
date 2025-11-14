@@ -28,7 +28,7 @@ public class TokenStore {
     }
 
     public void save(String token) {
-        Duration ttl = Duration.ofMinutes(1);
+        Duration ttl = Duration.ofMinutes(10);
         redis.opsForValue().set(keyFor(token), "1", ttl);
     }
 
@@ -37,7 +37,7 @@ public class TokenStore {
     }
 
     public void refresh(String token) {
-        Duration ttl = Duration.ofMinutes(1);
+        Duration ttl = Duration.ofMinutes(10);
         redis.expire(keyFor(token), ttl);
     }
 

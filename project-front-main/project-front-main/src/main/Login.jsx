@@ -90,7 +90,6 @@ export function Login() {
           </div>
         </div>
 
-        {/* Área derecha - 35% Login */}
         <div 
           className="login-right d-flex align-items-center justify-content-center p-4 bg-light"
         >

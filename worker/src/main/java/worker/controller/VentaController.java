@@ -24,6 +24,12 @@ public class VentaController {
         VentaResponseDTO venta = ventaService.crearVenta(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(venta);
     }
+    @DeleteMapping("/numero/{numero}")
+    public ResponseEntity<Void> eliminarVentaPorNumero(@PathVariable String numero) {
+        ventaService.eliminarVentaPorNumero(numero);
+        return ResponseEntity.noContent().build();
+    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<VentaResponseDTO> obtenerVenta(@PathVariable Long id) {

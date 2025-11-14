@@ -2,7 +2,6 @@ export const Inicio = () => {
   return (
     <div className="d-flex align-items-center justify-content-center" style={{ minHeight: '80vh' }}>
       <div className="container px-4" style={{ transform: 'translateY(-24px)' }}>
-        {/* Hero / Encabezado */}
         <div className="text-center mb-5">
           <h1 className="display-5 fw-bold mb-3">SEGED</h1>
           <p className="text-muted mb-0">
@@ -10,7 +9,6 @@ export const Inicio = () => {
           </p>
         </div>
 
-        {/* Tarjetas de Misión y Visión */}
         <div className="row g-4">
           <div className="col-12 col-lg-6">
             <div className="card h-100 shadow-sm border-0">

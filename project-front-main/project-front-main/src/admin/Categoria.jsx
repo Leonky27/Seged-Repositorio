@@ -7,7 +7,7 @@ export function Categoria() {
   const [formData, setFormData] = useState({
     nombre: "",
     descripcion: "",
-    fechaCreacion: new Date().toISOString().split("T")[0], // YYYY-MM-DD
+    fechaCreacion: new Date().toISOString().split("T")[0],
   });
   const [submitting, setSubmitting] = useState(false);
 

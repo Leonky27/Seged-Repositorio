@@ -49,8 +49,15 @@ public class Usuario implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles == null ? List.of() : roles.stream().map(SimpleGrantedAuthority::new).toList();
+        if (roles == null) return List.of();
+
+        return roles.stream()
+                .map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role)
+                .map(SimpleGrantedAuthority::new)
+                .toList();
     }
+
+
 
 
     @Override
