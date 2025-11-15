@@ -22,7 +22,7 @@ public class ApplicationConfig {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean  // único bean con este nombre
+    @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider p = new DaoAuthenticationProvider();
         p.setUserDetailsService(userDetailsService);

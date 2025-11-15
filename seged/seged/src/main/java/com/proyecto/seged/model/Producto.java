@@ -17,7 +17,7 @@ public class Producto {
     @Id
     private String id;
 
-    private Date fechadecreacion = new Date(); // sin @Id
+    private Date fechadecreacion = new Date();
 
     private String nombre;
 

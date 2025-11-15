@@ -2,7 +2,6 @@ package com.proyecto.seged.controller;
 
 import com.proyecto.seged.model.Inventario;
 import com.proyecto.seged.service.InventarioService;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,18 +16,15 @@ public class InventarioController {
     @Autowired
     private InventarioService inventarioService;
 
-
     @PostMapping
     public ResponseEntity<Inventario> save(@RequestBody Inventario inventario) {
         return new ResponseEntity<>(inventarioService.save(inventario), HttpStatus.CREATED);
     }
 
-
     @GetMapping
     public ResponseEntity<List<Inventario>> getInventarios() {
         return new ResponseEntity<>(inventarioService.getInventarios(), HttpStatus.OK);
     }
-
 
     @GetMapping("/{id}")
     public ResponseEntity<Inventario> get(@PathVariable String id) {
@@ -37,13 +33,11 @@ public class InventarioController {
         return new ResponseEntity<>(inv, HttpStatus.OK);
     }
 
-
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delete(@PathVariable String id) {
         inventarioService.delete(id);
         return new ResponseEntity<>("Eliminación exitosa", HttpStatus.OK);
     }
-
 
     @PostMapping("/{id}/movimientos")
     public ResponseEntity<Inventario> registrarMovimiento(
@@ -55,21 +49,16 @@ public class InventarioController {
                 req.getTipoMovimiento(),
                 req.getCantidad(),
                 req.getMotivo(),
-                toObjectId(req.getUsuarioId()),
-                toObjectId(req.getVentaId()),
-                toObjectId(req.getCompraId())
+                req.getUsuarioId(),
+                req.getVentaId(),
+                req.getCompraId()
         );
         return new ResponseEntity<>(actualizado, HttpStatus.OK);
     }
 
 
-    private ObjectId toObjectId(String s) {
-        return (s != null && ObjectId.isValid(s)) ? new ObjectId(s) : null;
-    }
-
-
     public static class MovimientoRequest {
-        private String tipoMovimiento; // "entrada", "salida", "ajuste"
+        private String tipoMovimiento;
         private Double cantidad;
         private String motivo;
         private String usuarioId;

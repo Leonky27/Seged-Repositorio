@@ -1,13 +1,22 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useVentas } from "../hooks/useVentas";
 import { useDetalleVentas } from "../hooks/useDetalleVentas";
 import { useClientes } from "../hooks/useClientes";
 import { useProductos } from "../hooks/useProductos";
 import { Link } from "react-router-dom";
 import workerApi from "../api/workerClient";
+import api from "../api/client";  
 
 export function Ventas() {
-  const { items: ventas, loading, error, createVenta, removeVenta } = useVentas();
+  const { 
+    items: ventas, 
+    loading, 
+    error, 
+    createVenta, 
+    createVentaConInventario,  
+    removeVenta 
+  } = useVentas();
+  
   const { createDetalle } = useDetalleVentas();
   const { items: clientes } = useClientes();
   const { items: productos } = useProductos();
@@ -156,7 +165,7 @@ export function Ventas() {
     };
 
     try {
-      const ventaCreada = await createVenta(payloadVenta);
+      const ventaCreada = await createVentaConInventario(payloadVenta, lineasParaVenta);
 
       for (const linea of lineasParaVenta) {
         await createDetalle({
@@ -189,7 +198,7 @@ export function Ventas() {
         console.error("Error de red al llamar al backend SQL:", errSql);
       }
 
-      alert("Venta registrada con éxito.");
+      alert("Venta registrada con éxito");
       setVentaForm({ clienteId: "", numero: "", metodoPago: "Efectivo" });
       setLineForm({
         productoId: "",
@@ -206,81 +215,81 @@ export function Ventas() {
     }
   };
 
-const handleDeleteVenta = async (id) => {
-  const venta = ventas.find((v) => v.id === id);
+  const handleDeleteVenta = async (id) => {
+    const venta = ventas.find((v) => v.id === id);
 
-  if (!venta) {
-    return alert("No se encontró la venta en memoria.");
-  }
-
-  if (
-    !window.confirm(
-      `¿Eliminar la venta ${venta.numero || id}? Esto también eliminará sus detalles.`
-    )
-  ) {
-    return;
-  }
-
-  try {
-    try {
-      const resDet = await api.get("/api/detalle_ventas", {
-        validateStatus: () => true,
-      });
-
-      if (resDet.status < 400) {
-        const data = Array.isArray(resDet.data)
-          ? resDet.data
-          : resDet.data?.content ?? [];
-
-        const detallesDeEstaVenta = data.filter(
-          (d) => d.venta_id === id || d.ventaId === id
-        );
-
-        await Promise.all(
-          detallesDeEstaVenta.map((d) =>
-            api.delete(`/api/detalle_ventas/${d.id}`, {
-              validateStatus: () => true,
-            })
-          )
-        );
-      } else {
-        console.error(
-          "Error obteniendo detalle_ventas para eliminar:",
-          resDet.status,
-          resDet.data
-        );
-      }
-    } catch (errDet) {
-      console.error("Error eliminando detalle_ventas en Mongo:", errDet);
+    if (!venta) {
+      return alert("No se encontró la venta en memoria.");
     }
 
-    await removeVenta(id);
+    if (
+      !window.confirm(
+        `¿Eliminar la venta ${venta.numero || id}? Esto también eliminará sus detalles.`
+      )
+    ) {
+      return;
+    }
 
-    if (venta.numero) {
+    try {
       try {
-        const resSql = await workerApi.delete(
-          `/api/ventas/numero/${encodeURIComponent(venta.numero)}`,
-          { validateStatus: () => true }
-        );
+        const resDet = await api.get("/api/detalle_ventas", {
+          validateStatus: () => true,
+        });
 
-        if (resSql.status >= 400 && resSql.status !== 404) {
+        if (resDet.status < 400) {
+          const data = Array.isArray(resDet.data)
+            ? resDet.data
+            : resDet.data?.content ?? [];
+
+          const detallesDeEstaVenta = data.filter(
+            (d) => d.venta_id === id || d.ventaId === id
+          );
+
+          await Promise.all(
+            detallesDeEstaVenta.map((d) =>
+              api.delete(`/api/detalle_ventas/${d.id}`, {
+                validateStatus: () => true,
+              })
+            )
+          );
+        } else {
           console.error(
-            "Error eliminando venta en SQL:",
-            resSql.status,
-            resSql.data
+            "Error obteniendo detalle_ventas para eliminar:",
+            resDet.status,
+            resDet.data
           );
         }
-      } catch (errSql) {
-        console.error("Error de red al eliminar venta en SQL:", errSql);
+      } catch (errDet) {
+        console.error("Error eliminando detalle_ventas en Mongo:", errDet);
       }
-    }
 
-    alert("Venta eliminada correctamente.");
-  } catch (err) {
-    console.error(err);
-    alert(err.message || "No se pudo eliminar la venta.");
-  }
-};
+      await removeVenta(id);
+
+      if (venta.numero) {
+        try {
+          const resSql = await workerApi.delete(
+            `/api/ventas/numero/${encodeURIComponent(venta.numero)}`,
+            { validateStatus: () => true }
+          );
+
+          if (resSql.status >= 400 && resSql.status !== 404) {
+            console.error(
+              "Error eliminando venta en SQL:",
+              resSql.status,
+              resSql.data
+            );
+          }
+        } catch (errSql) {
+          console.error("Error de red al eliminar venta en SQL:", errSql);
+        }
+      }
+
+      alert("Venta eliminada correctamente.");
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "No se pudo eliminar la venta.");
+    }
+  };
 
   const getClienteNombre = (id) => {
     const found = clientes.find((c) => c.id === id);

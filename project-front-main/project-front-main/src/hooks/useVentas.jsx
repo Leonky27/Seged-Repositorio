@@ -53,6 +53,29 @@ export function useVentas() {
     return created;
   }, []);
 
+  const createVentaConInventario = useCallback(async (ventaData, detalles) => {
+    const payload = {
+      venta: ventaData,
+      detalles: detalles.map(d => ({
+        productoId: d.productoId,
+        cantidad: d.cantidad
+      }))
+    };
+
+    const res = await api.post("/api/ventas/con-inventario", payload, { 
+      validateStatus: () => true 
+    });
+    
+    if (res.status >= 400) {
+      const errorMsg = typeof res.data === 'string' ? res.data : (res.data?.message || "No se pudo crear la venta");
+      throw new Error(errorMsg);
+    }
+    
+    const created = normalizeVenta(res.data);
+    setItems((prev) => (created ? [created, ...prev] : prev));
+    return created;
+  }, []);
+
   const removeVenta = useCallback(async (id) => {
     const res = await api.delete(`/api/ventas/${id}`, { validateStatus: () => true });
     if (res.status >= 400 && res.status !== 404) {
@@ -65,5 +88,13 @@ export function useVentas() {
     fetchAll();
   }, [fetchAll]);
 
-  return { items, loading, error, fetchAll, createVenta, removeVenta };
+  return { 
+    items, 
+    loading, 
+    error, 
+    fetchAll, 
+    createVenta, 
+    createVentaConInventario,  
+    removeVenta 
+  };
 }
