@@ -68,13 +68,10 @@ export function useDetalleVentas() {
     setItems((prev) => prev.filter((d) => d.id !== id));
   }, []);
 
-  // 🔥 NUEVA FUNCIÓN: Eliminar todos los detalles de una venta
   const removeDetallesByVenta = useCallback(async (ventaId) => {
     try {
-      // Obtener todos los detalles de esta venta
       const detallesVenta = items.filter((d) => d.ventaId === ventaId);
       
-      // Eliminar cada detalle individualmente
       for (const detalle of detallesVenta) {
         await removeDetalle(detalle.id);
       }

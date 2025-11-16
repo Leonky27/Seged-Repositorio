@@ -2,12 +2,15 @@ import React, { useEffect, useState } from "react";
 import { useInventarios } from "../hooks/useInventarios";
 import api from "../api/client";
 
+
 export function Inventario() {
   const { items, loading, error, fetchAll, createOne, removeOne, registrarMovimiento } = useInventarios();
+
 
   const [productos, setProductos] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [submitting, setSubmitting] = useState(false);
+
 
   const [formData, setFormData] = useState({
     productoId: "",
@@ -18,6 +21,7 @@ export function Inventario() {
     almacen: "",
     pasillo: "",
   });
+
 
   const [showModal, setShowModal] = useState(false);
   const [selectedInventario, setSelectedInventario] = useState(null);
@@ -30,10 +34,12 @@ export function Inventario() {
     compraId: "",
   });
 
+
   useEffect(() => {
     loadProductos();
     loadCategorias();
   }, []);
+
 
   const loadProductos = async () => {
     try {
@@ -46,6 +52,7 @@ export function Inventario() {
     }
   };
 
+
   const loadCategorias = async () => {
     try {
       const res = await api.get("/api/categorias", { validateStatus: () => true });
@@ -57,15 +64,18 @@ export function Inventario() {
     }
   };
 
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+
   const handleMovimientoChange = (e) => {
     const { name, value } = e.target;
     setMovimientoData((prev) => ({ ...prev, [name]: value }));
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -73,6 +83,7 @@ export function Inventario() {
     if (!formData.stockActual || Number(formData.stockActual) < 0) {
       return alert("El stock actual debe ser mayor o igual a 0");
     }
+
 
     setSubmitting(true);
     try {
@@ -101,6 +112,7 @@ export function Inventario() {
     }
   };
 
+
   const handleDelete = async (id) => {
     if (!id) return;
     if (!window.confirm("¿Eliminar este inventario?")) return;
@@ -110,6 +122,7 @@ export function Inventario() {
       alert(err.message || "No se pudo eliminar");
     }
   };
+
 
   const openMovimientoModal = (inventario) => {
     setSelectedInventario(inventario);
@@ -124,10 +137,12 @@ export function Inventario() {
     setShowModal(true);
   };
 
+
   const closeModal = () => {
     setShowModal(false);
     setSelectedInventario(null);
   };
+
 
   const handleRegistrarMovimiento = async (e) => {
     e.preventDefault();
@@ -138,6 +153,7 @@ export function Inventario() {
       return alert("El motivo es obligatorio");
     }
 
+
     try {
       await registrarMovimiento(selectedInventario.id, movimientoData);
       closeModal();
@@ -146,6 +162,7 @@ export function Inventario() {
       alert(err.message || "Error al registrar movimiento");
     }
   };
+
 
   return (
     <div className="container mt-4">
@@ -156,7 +173,7 @@ export function Inventario() {
         </button>
       </div>
 
-      {/* Formulario Crear Inventario */}
+
       <div className="card mb-4 shadow">
         <div className="card-header bg-primary text-white">
           <h5 className="mb-0">Nuevo Inventario</h5>
@@ -203,7 +220,7 @@ export function Inventario() {
                 <label className="form-label">Stock Actual *</label>
                 <input
                   type="number"
-                  step="0.01"
+                  step="1"
                   min="0"
                   name="stockActual"
                   className="form-control"
@@ -217,7 +234,7 @@ export function Inventario() {
                 <label className="form-label">Stock Mínimo</label>
                 <input
                   type="number"
-                  step="0.01"
+                  step="1"
                   min="0"
                   name="stockMinimo"
                   className="form-control"
@@ -230,7 +247,7 @@ export function Inventario() {
                 <label className="form-label">Stock Máximo</label>
                 <input
                   type="number"
-                  step="0.01"
+                  step="1"
                   min="0"
                   name="stockMaximo"
                   className="form-control"
@@ -240,6 +257,7 @@ export function Inventario() {
                 />
               </div>
             </div>
+
 
             <div className="row g-3 mt-2">
               <div className="col-md-6">
@@ -266,6 +284,7 @@ export function Inventario() {
               </div>
             </div>
 
+
             <div className="mt-3 d-flex justify-content-end">
               <button type="submit" className="btn btn-success" disabled={submitting}>
                 {submitting ? "Guardando..." : "Guardar Inventario"}
@@ -275,10 +294,10 @@ export function Inventario() {
         </div>
       </div>
 
-      {/* Errores */}
+
       {error && <div className="alert alert-danger">{error}</div>}
 
-      {/* Tabla Inventarios */}
+
       <div className="card shadow">
         <div className="card-header bg-dark text-white">
           <h5 className="mb-0">Inventarios Registrados ({items.length})</h5>
@@ -318,11 +337,11 @@ export function Inventario() {
                               : "badge bg-success"
                           }
                         >
-                          {inv.stockActual.toFixed(2)}
+                          {Math.round(inv.stockActual)}
                         </span>
                       </td>
-                      <td>{inv.stockMinimo.toFixed(2)}</td>
-                      <td>{inv.stockMaximo.toFixed(2)}</td>
+                      <td>{Math.round(inv.stockMinimo)}</td>
+                      <td>{Math.round(inv.stockMaximo)}</td>
                       <td>{inv.almacen || "-"}</td>
                       <td>{inv.pasillo || "-"}</td>
                       <td>
@@ -348,7 +367,7 @@ export function Inventario() {
         </div>
       </div>
 
-      {/* Modal para Registrar Movimiento */}
+
       {showModal && (
         <div
           className="modal show d-block"
@@ -370,8 +389,9 @@ export function Inventario() {
                   <p className="mb-3">
                     <strong>Producto:</strong> {selectedInventario?.producto?.nombre}
                     <br />
-                    <strong>Stock Actual:</strong> {selectedInventario?.stockActual.toFixed(2)}
+                    <strong>Stock Actual:</strong> {Math.round(selectedInventario?.stockActual)}
                   </p>
+
 
                   <div className="mb-3">
                     <label className="form-label">Tipo de Movimiento *</label>
@@ -388,12 +408,13 @@ export function Inventario() {
                     </select>
                   </div>
 
+
                   <div className="mb-3">
                     <label className="form-label">Cantidad *</label>
                     <input
                       type="number"
-                      step="0.01"
-                      min="0.01"
+                      step="1"
+                      min="1"
                       name="cantidad"
                       className="form-control"
                       value={movimientoData.cantidad}
@@ -401,6 +422,7 @@ export function Inventario() {
                       required
                     />
                   </div>
+
 
                   <div className="mb-3">
                     <label className="form-label">Motivo *</label>
@@ -414,6 +436,7 @@ export function Inventario() {
                     ></textarea>
                   </div>
 
+
                   <div className="mb-3">
                     <label className="form-label">ID Usuario (opcional)</label>
                     <input
@@ -425,6 +448,7 @@ export function Inventario() {
                     />
                   </div>
 
+
                   <div className="mb-3">
                     <label className="form-label">ID Venta (opcional)</label>
                     <input
@@ -435,6 +459,7 @@ export function Inventario() {
                       onChange={handleMovimientoChange}
                     />
                   </div>
+
 
                   <div className="mb-3">
                     <label className="form-label">ID Compra (opcional)</label>

@@ -5,15 +5,18 @@ import { useDetalleByVenta } from "../hooks/useDetalleByVenta";
 import { useProductos } from "../hooks/useProductos";
 import { useClientes } from "../hooks/useClientes";
 
+
 export function VentaDetalle() {
-  const { id } = useParams(); // ID de la venta
+  const { id } = useParams(); 
   const [venta, setVenta] = useState(null);
   const [loadingVenta, setLoadingVenta] = useState(true);
   const [errorVenta, setErrorVenta] = useState(null);
 
+
   const { items: detalle, loading, error } = useDetalleByVenta(id);
   const { items: productos } = useProductos();
   const { items: clientes } = useClientes();
+
 
   useEffect(() => {
     const fetch = async () => {
@@ -31,19 +34,23 @@ export function VentaDetalle() {
     fetch();
   }, [id]);
 
-  // Resolver nombres del producto y cliente
+
   const getProducto = (id) => productos.find((p) => p.id === id);
   const getCliente = (id) => clientes.find((c) => c.id === id);
+
 
   if (loadingVenta) return <p className="text-center mt-5">Cargando venta...</p>;
   if (errorVenta) return <p className="text-danger">{errorVenta}</p>;
 
+
   const cliente = getCliente(venta.cliente_id);
   
+
 
   return (
     <div className="container mt-4">
       
+
 
       <div className="card shadow mb-4">
         <div className="card-header bg-primary text-white">
@@ -51,21 +58,26 @@ export function VentaDetalle() {
         </div>
         <div className="card-body">
 
+
           <h5 className="mb-3">Información General</h5>
           <p><strong>Cliente:</strong> {cliente?.nombre} — {cliente?.cedula}</p>
           <p><strong>Método de pago:</strong> {venta.informacionVenta?.metodoPago}</p>
           <p><strong>Fecha:</strong> {new Date(venta.informacionVenta?.fecha).toLocaleString()}</p>
 
+
           <h5 className="mt-4">Totales</h5>
-          <p><strong>Subtotal:</strong> ${venta.calculos?.subTotal.toFixed(2)}</p>
-          <p><strong>Impuestos:</strong> ${venta.calculos?.impuestos.toFixed(2)}</p>
-          <p><strong>Total:</strong> <strong>${venta.calculos?.total.toFixed(2)}</strong></p>
+          <p><strong>Subtotal:</strong> ${Math.round(venta.calculos?.subTotal)}</p>
+          <p><strong>Impuestos:</strong> ${Math.round(venta.calculos?.impuestos)}</p>
+          <p><strong>Total:</strong> <strong>${Math.round(venta.calculos?.total)}</strong></p>
+
 
           <hr />
+
 
           <h5>Productos Vendidos</h5>
           {loading && <p>Cargando detalle...</p>}
           {error && <p className="text-danger">{error}</p>}
+
 
           {detalle.length === 0 ? (
             <p>No hay detalles asociados.</p>
@@ -88,9 +100,9 @@ export function VentaDetalle() {
                       <tr key={d.id}>
                         <td>{prod ? prod.nombre : "Producto no encontrado"}</td>
                         <td>{d.cantidad}</td>
-                        <td>${d.precioUnitario.toFixed(2)}</td>
-                        <td>{d.descuentoValor ? `$${d.descuentoValor}` : "0"}</td>
-                        <td>${d.subtotal.toFixed(2)}</td>
+                        <td>${Math.round(d.precioUnitario)}</td>
+                        <td>{d.descuentoValor ? `$${Math.round(d.descuentoValor)}` : "0"}</td>
+                        <td>${Math.round(d.subtotal)}</td>
                       </tr>
                     );
                   })}
@@ -98,6 +110,7 @@ export function VentaDetalle() {
               </table>
             </div>
           )}
+
 
         </div>
       </div>

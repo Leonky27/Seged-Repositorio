@@ -1,26 +1,25 @@
 import { useMemo, useState } from "react";
-import { useVentas } from "../hooks/useVentas";
-import { useDetalleVentas } from "../hooks/useDetalleVentas";
-import { useClientes } from "../hooks/useClientes";
+import { useCompras } from "../hooks/useCompras";
+import { useDetalleCompras } from "../hooks/useDetalleCompras";
+import { useProveedores } from "../hooks/useProveedores";
 import { useProductos } from "../hooks/useProductos";
 import { Link } from "react-router-dom";
-import workerApi from "../api/workerClient";
 import api from "../api/client";
 
 
-export function Ventas() {
+export function Compras() {
   const {
-    items: ventas,
+    items: compras,
     loading,
     error,
-    createVenta,
-    createVentaConInventario,
-    removeVenta,
-  } = useVentas();
+    createCompra,
+    createCompraConInventario,
+    removeCompra,
+  } = useCompras();
 
 
-  const { createDetalle } = useDetalleVentas();
-  const { items: clientes } = useClientes();
+  const { createDetalle } = useDetalleCompras();
+  const { items: proveedores, loading: loadingProveedores } = useProveedores();
   const { items: productos } = useProductos();
 
 
@@ -29,10 +28,11 @@ export function Ventas() {
   const itemsPerPage = 20;
 
 
-  const [ventaForm, setVentaForm] = useState({
-    clienteId: "",
+  const [compraForm, setCompraForm] = useState({
+    proveedorId: "",
     numero: "",
     metodoPago: "Efectivo",
+    tipo: "NORMAL",
   });
 
 
@@ -49,18 +49,18 @@ export function Ventas() {
   const [lineas, setLineas] = useState([]);
 
 
-  const ventasFiltradas = useMemo(() => {
-    if (!searchTerm.trim()) return ventas;
-    return ventas.filter((v) =>
-      v.numero.toLowerCase().includes(searchTerm.toLowerCase())
+  const comprasFiltradas = useMemo(() => {
+    if (!searchTerm.trim()) return compras;
+    return compras.filter((c) =>
+      c.numero.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [ventas, searchTerm]);
+  }, [compras, searchTerm]);
 
 
-  const totalPages = Math.ceil(ventasFiltradas.length / itemsPerPage);
+  const totalPages = Math.ceil(comprasFiltradas.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const ventasPaginadas = ventasFiltradas.slice(indexOfFirstItem, indexOfLastItem);
+  const comprasPaginadas = comprasFiltradas.slice(indexOfFirstItem, indexOfLastItem);
 
 
   const handlePageChange = (pageNumber) => {
@@ -74,9 +74,9 @@ export function Ventas() {
   };
 
 
-  const onChangeVenta = (e) => {
+  const onChangeCompra = (e) => {
     const { name, value } = e.target;
-    setVentaForm((prev) => ({ ...prev, [name]: value }));
+    setCompraForm((prev) => ({ ...prev, [name]: value }));
   };
 
 
@@ -149,28 +149,29 @@ export function Ventas() {
 
 
   const totales = useMemo(() => {
-    const subTotal = lineas.reduce((acc, l) => acc + l.subtotal, 0);
+    const subtotal = lineas.reduce((acc, l) => acc + l.subtotal, 0);
+    const descuentos = lineas.reduce((acc, l) => acc + (l.descuentoValor || 0), 0);
     const impuestos = 0;
-    const total = subTotal + impuestos;
-    return { subTotal, impuestos, total };
+    const total = subtotal - descuentos + impuestos;
+    return { subtotal, impuestos, descuentos, total };
   }, [lineas]);
 
 
-  const onSubmitVenta = async (e) => {
+  const onSubmitCompra = async (e) => {
     e.preventDefault();
 
 
-    if (!ventaForm.clienteId.trim()) {
-      return alert("Debes seleccionar un cliente.");
+    if (!compraForm.proveedorId.trim()) {
+      return alert("Debes seleccionar un proveedor.");
     }
 
 
-    let lineasParaVenta = lineas;
+    let lineasParaCompra = lineas;
 
 
-    if (lineasParaVenta.length === 0) {
+    if (lineasParaCompra.length === 0) {
       if (!lineForm.productoId.trim()) {
-        return alert("Agrega al menos un producto a la venta.");
+        return alert("Agrega al menos un producto a la compra.");
       }
       if (!lineForm.cantidad || lineForm.cantidad <= 0) {
         return alert("Cantidad inválida para el producto.");
@@ -181,7 +182,7 @@ export function Ventas() {
         lineForm.cantidad * lineForm.precioUnitario - (lineForm.descuentoValor || 0);
 
 
-      lineasParaVenta = [
+      lineasParaCompra = [
         {
           ...lineForm,
           id:
@@ -194,25 +195,28 @@ export function Ventas() {
     }
 
 
-    const subTotal = lineasParaVenta.reduce((acc, l) => acc + l.subtotal, 0);
+    const subtotal = lineasParaCompra.reduce((acc, l) => acc + l.subtotal, 0);
+    const descuentos = lineasParaCompra.reduce((acc, l) => acc + (l.descuentoValor || 0), 0);
     const impuestos = 0;
-    const total = subTotal + impuestos;
+    const total = subtotal - descuentos + impuestos;
 
 
     const now = new Date().toISOString();
 
 
-    const payloadVenta = {
-      cliente_id: ventaForm.clienteId,
+    const payloadCompra = {
+      proveedor_id: compraForm.proveedorId,
       usuario_id: null,
-      informacionVenta: {
-        numero: ventaForm.numero || "VENTA-" + Date.now(),
+      informacionCompra: {
+        numero: compraForm.numero || "COMPRA-" + Date.now(),
         fecha: now,
-        metodoPago: ventaForm.metodoPago,
+        metodoPago: compraForm.metodoPago,
+        tipo: compraForm.tipo,
       },
-      calculos: {
-        subTotal,
+      calculo: {
+        subtotal,
         impuestos,
+        descuentos,
         total,
       },
       estado: "REGISTRADA",
@@ -222,12 +226,12 @@ export function Ventas() {
 
 
     try {
-      const ventaCreada = await createVentaConInventario(payloadVenta, lineasParaVenta);
+      const compraCreada = await createCompraConInventario(payloadCompra, lineasParaCompra);
 
 
-      for (const linea of lineasParaVenta) {
+      for (const linea of lineasParaCompra) {
         await createDetalle({
-          ventaId: ventaCreada.id,
+          compraId: compraCreada.id,
           productoId: linea.productoId,
           cantidad: linea.cantidad,
           precioUnitario: linea.precioUnitario,
@@ -238,25 +242,8 @@ export function Ventas() {
       }
 
 
-      try {
-        const sqlPayload = buildSqlVentaPayload(payloadVenta, lineasParaVenta);
-        const resSql = await workerApi.post("/api/ventas", sqlPayload, {
-          validateStatus: () => true,
-        });
-
-
-        if (resSql.status >= 400) {
-          console.error("Error desde backend SQL:", resSql.status, resSql.data);
-        } else {
-          console.log("Venta registrada también en SQL:", resSql.data);
-        }
-      } catch (errSql) {
-        console.error("Error de red al llamar al backend SQL:", errSql);
-      }
-
-
-      alert("Venta registrada con éxito");
-      setVentaForm({ clienteId: "", numero: "", metodoPago: "Efectivo" });
+      alert("Compra registrada con éxito. Inventario actualizado.");
+      setCompraForm({ proveedorId: "", numero: "", metodoPago: "Efectivo", tipo: "NORMAL" });
       setLineForm({
         productoId: "",
         productoNombre: "",
@@ -268,23 +255,23 @@ export function Ventas() {
       setLineas([]);
     } catch (err) {
       console.error(err);
-      alert(err.message || "No se pudo registrar la venta.");
+      alert(err.message || "No se pudo registrar la compra.");
     }
   };
 
 
-  const handleDeleteVenta = async (id) => {
-    const venta = ventas.find((v) => v.id === id);
+  const handleDeleteCompra = async (id) => {
+    const compra = compras.find((c) => c.id === id);
 
 
-    if (!venta) {
-      return alert("No se encontró la venta en memoria.");
+    if (!compra) {
+      return alert("No se encontró la compra en memoria.");
     }
 
 
     if (
       !window.confirm(
-        `¿Eliminar la venta ${venta.numero || id}? Esto también eliminará sus detalles.`
+        `¿Eliminar la compra ${compra.numero || id}? Esto también eliminará sus detalles.`
       )
     ) {
       return;
@@ -293,7 +280,7 @@ export function Ventas() {
 
     try {
       try {
-        const resDet = await api.get("/api/detalle_ventas", {
+        const resDet = await api.get("/api/detalle_compras", {
           validateStatus: () => true,
         });
 
@@ -304,115 +291,38 @@ export function Ventas() {
             : resDet.data?.content ?? [];
 
 
-          const detallesDeEstaVenta = data.filter(
-            (d) => d.venta_id === id || d.ventaId === id
+          const detallesDeEstaCompra = data.filter(
+            (d) => d.compra_id === id || d.compraId === id
           );
 
 
           await Promise.all(
-            detallesDeEstaVenta.map((d) =>
-              api.delete(`/api/detalle_ventas/${d.id}`, {
+            detallesDeEstaCompra.map((d) =>
+              api.delete(`/api/detalle_compras/${d.id}`, {
                 validateStatus: () => true,
               })
             )
           );
-        } else {
-          console.error(
-            "Error obteniendo detalle_ventas para eliminar:",
-            resDet.status,
-            resDet.data
-          );
         }
       } catch (errDet) {
-        console.error("Error eliminando detalle_ventas en Mongo:", errDet);
+        console.error("Error eliminando detalle_compras en Mongo:", errDet);
       }
 
 
-      await removeVenta(id);
-
-
-      if (venta.numero) {
-        try {
-          const resSql = await workerApi.delete(
-            `/api/ventas/numero/${encodeURIComponent(venta.numero)}`,
-            { validateStatus: () => true }
-          );
-
-
-          if (resSql.status >= 400 && resSql.status !== 404) {
-            console.error("Error eliminando venta en SQL:", resSql.status, resSql.data);
-          }
-        } catch (errSql) {
-          console.error("Error de red al eliminar venta en SQL:", errSql);
-        }
-      }
-
-
-      alert("Venta eliminada correctamente.");
+      await removeCompra(id);
+      alert("Compra eliminada correctamente.");
     } catch (err) {
       console.error(err);
-      alert(err.message || "No se pudo eliminar la venta.");
+      alert(err.message || "No se pudo eliminar la compra.");
     }
   };
 
 
-  const getClienteNombre = (id) => {
-    const found = clientes.find((c) => c.id === id);
-    return found ? found.nombre : id;
+  const getProveedorNombre = (id) => {
+    const found = proveedores.find((p) => p.id === id);
+    return found ? found.nombreProveedor : id;
   };
 
-
-  const buildSqlVentaPayload = (ventaPayload, lineasParaVenta) => {
-    const cliente = clientes.find((c) => c.id === ventaPayload.cliente_id);
-
-
-    const detalles = lineasParaVenta.map((l) => {
-      const prod = productos.find((p) => p.id === l.productoId);
-      const descuentoNum = Number(l.descuentoValor || 0);
-
-
-      return {
-        productoId: null,
-        nombreProducto: prod?.nombre || l.productoNombre,
-        cantidad: l.cantidad,
-        precioUnitario: l.precioUnitario,
-        descuento: descuentoNum,
-        subtotal: l.subtotal,
-      };
-    });
-
-
-    return {
-      cliente: cliente
-        ? {
-          clienteId: null,
-          nombre: cliente.nombre,
-          docId: cliente.cedula || null,
-        }
-        : null,
-
-
-      usuario: null,
-
-
-      informacionVenta: {
-        numero: ventaPayload.informacionVenta.numero,
-        fecha: ventaPayload.informacionVenta.fecha,
-        metodoPago: ventaPayload.informacionVenta.metodoPago,
-        tipo: "NORMAL",
-      },
-
-
-      calculos: {
-        subtotal: ventaPayload.calculos.subTotal,
-        impuestos: ventaPayload.calculos.impuestos,
-        total: ventaPayload.calculos.total,
-      },
-
-
-      detalles,
-    };
-  };
 
   const renderPaginationItems = () => {
     const items = [];
@@ -487,58 +397,82 @@ export function Ventas() {
 
   return (
     <div className="container mt-4">
-      <h3 className="mb-3">Gestión de Ventas</h3>
+      <h3 className="mb-3">Gestión de Compras</h3>
 
 
+      {/* Formulario de nueva compra */}
       <div className="card mb-4 shadow">
-        <div className="card-header bg-primary text-white">
-          <h5 className="mb-0">Nueva Venta</h5>
+        <div className="card-header bg-success text-white">
+          <h5 className="mb-0">Nueva Compra</h5>
         </div>
         <div className="card-body">
-          <form onSubmit={onSubmitVenta}>
+          <form onSubmit={onSubmitCompra}>
             <div className="row g-3 mb-3">
-              <div className="col-md-4">
-                <label className="form-label">Cliente</label>
+              <div className="col-md-3">
+                <label className="form-label">Proveedor</label>
                 <select
-                  name="clienteId"
+                  name="proveedorId"
                   className="form-select"
-                  value={ventaForm.clienteId}
-                  onChange={onChangeVenta}
+                  value={compraForm.proveedorId}
+                  onChange={onChangeCompra}
                   required
+                  disabled={loadingProveedores}
                 >
-                  <option value="">Seleccione un cliente</option>
-                  {clientes.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.nombre} — {c.cedula}
+                  <option value="">
+                    {loadingProveedores
+                      ? "Cargando proveedores..."
+                      : proveedores.length === 0
+                      ? "No hay proveedores disponibles"
+                      : "Seleccione un proveedor"}
+                  </option>
+                  {Array.isArray(proveedores) && proveedores.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.nombreProveedor}
                     </option>
                   ))}
                 </select>
               </div>
 
 
-              <div className="col-md-4">
-                <label className="form-label">Número de venta</label>
+              <div className="col-md-3">
+                <label className="form-label">Número de compra</label>
                 <input
                   name="numero"
                   className="form-control"
-                  value={ventaForm.numero}
-                  onChange={onChangeVenta}
-                  placeholder="Opcional, se genera si lo dejas vacío"
+                  value={compraForm.numero}
+                  onChange={onChangeCompra}
+                  placeholder="Opcional, se genera automáticamente"
                 />
               </div>
 
 
-              <div className="col-md-4">
+              <div className="col-md-3">
                 <label className="form-label">Método de pago</label>
                 <select
                   name="metodoPago"
                   className="form-select"
-                  value={ventaForm.metodoPago}
-                  onChange={onChangeVenta}
+                  value={compraForm.metodoPago}
+                  onChange={onChangeCompra}
                 >
                   <option value="Efectivo">Efectivo</option>
                   <option value="Tarjeta">Tarjeta</option>
                   <option value="Transferencia">Transferencia</option>
+                  <option value="Credito">Crédito</option>
+                </select>
+              </div>
+
+
+              <div className="col-md-3">
+                <label className="form-label">Tipo</label>
+                <select
+                  name="tipo"
+                  className="form-select"
+                  value={compraForm.tipo}
+                  onChange={onChangeCompra}
+                >
+                  <option value="NORMAL">Normal</option>
+                  <option value="IMPORTACION">Importación</option>
+                  <option value="URGENTE">Urgente</option>
                 </select>
               </div>
             </div>
@@ -558,7 +492,7 @@ export function Ventas() {
                   <option value="">Seleccione un producto</option>
                   {productos.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.nombre} — ${Math.round(p.precioUnitario)}
+                      {p.nombre}
                     </option>
                   ))}
                 </select>
@@ -634,9 +568,9 @@ export function Ventas() {
                       <tr key={l.id}>
                         <td>{l.productoNombre || l.productoId}</td>
                         <td>{l.cantidad}</td>
-                        <td>{Math.round(l.precioUnitario)}</td>
-                        <td>{Math.round(l.descuentoValor)}</td>
-                        <td>{Math.round(l.subtotal)}</td>
+                        <td>${Math.round(l.precioUnitario)}</td>
+                        <td>${Math.round(l.descuentoValor)}</td>
+                        <td>${Math.round(l.subtotal)}</td>
                         <td>
                           <button
                             type="button"
@@ -656,12 +590,13 @@ export function Ventas() {
 
             <div className="d-flex justify-content-between align-items-center mb-2">
               <div>
-                <strong>Subtotal:</strong> {Math.round(totales.subTotal)} &nbsp;
-                <strong>Impuestos:</strong> {Math.round(totales.impuestos)} &nbsp;
-                <strong>Total:</strong> {Math.round(totales.total)}
+                <strong>Subtotal:</strong> ${Math.round(totales.subtotal)} &nbsp;
+                <strong>Descuentos:</strong> ${Math.round(totales.descuentos)} &nbsp;
+                <strong>Impuestos:</strong> ${Math.round(totales.impuestos)} &nbsp;
+                <strong>Total:</strong> ${Math.round(totales.total)}
               </div>
-              <button type="submit" className="btn btn-primary" disabled={loading}>
-                {loading ? "Guardando..." : "Registrar Venta"}
+              <button type="submit" className="btn btn-success" disabled={loading}>
+                {loading ? "Guardando..." : "Registrar Compra"}
               </button>
             </div>
           </form>
@@ -672,12 +607,12 @@ export function Ventas() {
       <div className="card shadow">
         <div className="card-header bg-dark text-white">
           <div className="d-flex justify-content-between align-items-center">
-            <h5 className="mb-0">Ventas registradas ({ventasFiltradas.length})</h5>
+            <h5 className="mb-0">Compras registradas ({comprasFiltradas.length})</h5>
             <div className="d-flex align-items-center gap-2">
               <input
                 type="text"
                 className="form-control form-control-sm"
-                placeholder="Buscar por número de venta..."
+                placeholder="Buscar por número de compra..."
                 value={searchTerm}
                 onChange={handleSearchChange}
                 style={{ width: "250px" }}
@@ -690,48 +625,52 @@ export function Ventas() {
           {loading && <p className="text-center m-0">Cargando...</p>}
 
 
-          {!loading && ventasFiltradas.length === 0 && (
+          {!loading && comprasFiltradas.length === 0 && (
             <p className="text-center m-0">
-              {searchTerm ? "No se encontraron ventas con ese número" : "No hay ventas registradas."}
+              {searchTerm
+                ? "No se encontraron compras con ese número"
+                : "No hay compras registradas."}
             </p>
           )}
 
 
-          {!loading && ventasPaginadas.length > 0 && (
+          {!loading && comprasPaginadas.length > 0 && (
             <>
               <div className="table-responsive">
                 <table className="table table-striped table-hover">
                   <thead className="table-dark">
                     <tr>
                       <th>Número</th>
-                      <th>Cliente</th>
+                      <th>Proveedor</th>
                       <th>Método Pago</th>
+                      <th>Tipo</th>
                       <th>Total</th>
                       <th>Estado</th>
                       <th>Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {ventasPaginadas.map((v) => (
-                      <tr key={v.id}>
-                        <td>{v.numero}</td>
-                        <td>{getClienteNombre(v.clienteId)}</td>
-                        <td>{v.metodoPago}</td>
-                        <td>${Math.round(v.total)}</td>
+                    {comprasPaginadas.map((c) => (
+                      <tr key={c.id}>
+                        <td>{c.numero}</td>
+                        <td>{getProveedorNombre(c.proveedorId)}</td>
+                        <td>{c.metodoPago}</td>
+                        <td>{c.tipo}</td>
+                        <td>${Math.round(c.total)}</td>
                         <td>
-                          <span className="badge bg-success">{v.estado}</span>
+                          <span className="badge bg-success">{c.estado}</span>
                         </td>
                         <td>
                           <div className="d-flex gap-2">
                             <Link
-                              to={`/ventas/${v.id}`}
+                              to={`/compras/${c.id}`}
                               className="btn btn-sm btn-outline-primary"
                             >
                               Ver detalle
                             </Link>
                             <button
                               className="btn btn-sm btn-danger"
-                              onClick={() => handleDeleteVenta(v.id)}
+                              onClick={() => handleDeleteCompra(c.id)}
                             >
                               Eliminar
                             </button>
@@ -748,8 +687,8 @@ export function Ventas() {
                 <div className="d-flex justify-content-between align-items-center mt-3">
                   <div className="text-muted">
                     Mostrando {indexOfFirstItem + 1} a{" "}
-                    {Math.min(indexOfLastItem, ventasFiltradas.length)} de{" "}
-                    {ventasFiltradas.length} ventas
+                    {Math.min(indexOfLastItem, comprasFiltradas.length)} de{" "}
+                    {comprasFiltradas.length} compras
                   </div>
                   <nav>
                     <ul className="pagination mb-0">{renderPaginationItems()}</ul>

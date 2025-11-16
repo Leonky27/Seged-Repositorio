@@ -70,6 +70,11 @@ export function NavBar() {
                   Productos
                 </Link>
               </li>
+              <li className="nav-item">
+                <Link to="/compras" className="nav-link">
+                  Compras
+                </Link>
+              </li>
               
             </ul>
 

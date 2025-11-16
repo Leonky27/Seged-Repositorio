@@ -5,7 +5,7 @@ export const Inicio = () => {
         <div className="text-center mb-5">
           <h1 className="display-5 fw-bold mb-3">SEGED</h1>
           <p className="text-muted mb-0">
-            Sistema de Gestión de Inventarios para microempresas
+            Sistema de Gestión de Ventas para microempresas
           </p>
         </div>
 
@@ -15,7 +15,7 @@ export const Inicio = () => {
               <div className="card-body p-4">
                 <h3 className="h4 fw-semibold mb-3">Misión</h3>
                 <p className="mb-0">
-                  Proveer a las microempresas una plataforma web de gestión de inventarios, segura, intuitiva y accesible, que estandarice procesos, reduzca mermas y habilite decisiones basadas en datos para fortalecer su productividad y competitividad.
+                  Proveer a las microempresas una plataforma web de gestión de ventas, segura, intuitiva y accesible, que estandarice procesos, reduzca mermas y habilite decisiones basadas en datos para fortalecer su productividad y competitividad.
                 </p>
               </div>
             </div>
@@ -26,7 +26,7 @@ export const Inicio = () => {
               <div className="card-body p-4">
                 <h3 className="h4 fw-semibold mb-3">Visión</h3>
                 <p className="mb-0">
-                  Consolidarnos como la solución de referencia en gestión de inventarios para microempresas en Latinoamérica, distinguiéndonos por innovación continua, confiabilidad operativa y un soporte cercano que impulse el crecimiento sostenible del tejido empresarial.
+                  Consolidarnos como la solución de referencia en gestión de ventas para microempresas en Latinoamérica, distinguiéndonos por innovación continua, confiabilidad operativa y un soporte cercano que impulse el crecimiento sostenible del tejido empresarial.
                 </p>
               </div>
             </div>

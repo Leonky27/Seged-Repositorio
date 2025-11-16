@@ -77,13 +77,13 @@ export function Login() {
           >
             <div className="text-white px-5" style={{ maxWidth: '600px' }}>
               <h1 className="display-3 fw-bold mb-4">SEGED</h1>
-              <h2 className="h3 mb-4">Sistema de Gestión de Inventario</h2>
+              <h2 className="h3 mb-4">Sistema de Gestión de ventas</h2>
               <p className="lead mb-4">
                 La solución perfecta para microempresas que buscan optimizar 
-                el control de su inventario de manera simple y eficiente.
+                el control de su ventas de manera simple y eficiente.
               </p>
               <p className="text-white-50">
-                Gestiona tu inventario de forma profesional sin complicaciones. 
+                Gestiona tus ventas de forma profesional sin complicaciones. 
                 SEGED te ayuda a tomar decisiones informadas sobre tu stock.
               </p>
             </div>

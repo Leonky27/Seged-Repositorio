@@ -45,7 +45,6 @@ public class InventarioService {
             return null;
         }
 
-        // Retorna el primer inventario activo encontrado
         return inventarios.stream()
                 .filter(Inventario::getActivo)
                 .findFirst()

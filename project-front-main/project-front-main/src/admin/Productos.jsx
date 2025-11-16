@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useProductos } from "../hooks/useProductos";
 import api from "../api/client";
 
+
 export function Productos() {
   const { items, loading, error, fetchAll, createOne, removeOne } = useProductos();
+
 
   const [categorias, setCategorias] = useState([]);
   const [formData, setFormData] = useState({
@@ -13,6 +15,7 @@ export function Productos() {
     categoriaId: "",
   });
   const [submitting, setSubmitting] = useState(false);
+
 
   useEffect(() => {
     const loadCategorias = async () => {
@@ -28,10 +31,12 @@ export function Productos() {
     loadCategorias();
   }, []);
 
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,6 +44,7 @@ export function Productos() {
     if (!formData.precioUnitario || Number(formData.precioUnitario) <= 0) {
       return alert("El precio debe ser mayor a 0");
     }
+
 
     setSubmitting(true);
     try {
@@ -56,6 +62,7 @@ export function Productos() {
     }
   };
 
+
   const handleDelete = async (id) => {
     if (!id) return;
     if (!window.confirm("¿Eliminar este producto?")) return;
@@ -66,6 +73,7 @@ export function Productos() {
     }
   };
 
+
   return (
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -75,7 +83,7 @@ export function Productos() {
         </button>
       </div>
 
-      {/* Formulario */}
+
       <div className="card mb-4 shadow">
         <div className="card-header bg-primary text-white">
           <h5 className="mb-0">Nuevo Producto</h5>
@@ -110,7 +118,7 @@ export function Productos() {
                 <label className="form-label">Precio Unitario</label>
                 <input
                   type="number"
-                  step="0.01"
+                  step="1"
                   min="0"
                   name="precioUnitario"
                   className="form-control"
@@ -139,6 +147,7 @@ export function Productos() {
               </div>
             </div>
 
+
             <div className="mt-3 d-flex justify-content-end">
               <button type="submit" className="btn btn-success" disabled={submitting}>
                 {submitting ? "Guardando..." : "Guardar Producto"}
@@ -148,14 +157,14 @@ export function Productos() {
         </div>
       </div>
 
-      {/* Errores */}
+
       {error && (
         <div className="alert alert-danger">
           {error}
         </div>
       )}
 
-      {/* Tabla */}
+
       <div className="card shadow">
         <div className="card-header bg-dark text-white">
           <h5 className="mb-0">Productos Registrados ({items.length})</h5>
@@ -182,7 +191,7 @@ export function Productos() {
                     <tr key={p.id}>
                       <td>{p.nombre}</td>
                       <td>{p.descripcion}</td>
-                      <td>{p.precioUnitario.toFixed(2)}</td>
+                      <td>${Math.round(p.precioUnitario)}</td>
                       <td>{p.categoriaNombre || "-"}</td>
                       <td>
                         <button
@@ -191,7 +200,6 @@ export function Productos() {
                         >
                           Eliminar
                         </button>
-                        {/* Si luego agregamos edición, aquí va el botón Editar */}
                       </td>
                     </tr>
                   ))}
