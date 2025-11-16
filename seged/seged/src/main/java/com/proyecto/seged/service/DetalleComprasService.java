@@ -22,10 +22,14 @@ public class DetalleComprasService {
     }
 
     public DetalleCompras get(String id) {
-        return detalleComprasRepository.findById(id);
+        return detalleComprasRepository.findById(id).orElse(null);
     }
 
     public void delete(String id) {
         detalleComprasRepository.deleteById(id);
+    }
+
+    public List<DetalleCompras> getByCompraId(String compraId) {
+        return detalleComprasRepository.findByCompraId(compraId);
     }
 }

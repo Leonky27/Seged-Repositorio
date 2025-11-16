@@ -10,8 +10,8 @@ export function useDetalleCompras() {
     setError(null);
     try {
       const body = {
-        compra_id: payload.compraId,
-        producto_id: payload.productoId,
+        compraId: payload.compraId,
+        productoId: payload.productoId,
         cantidad: payload.cantidad,
         precioUnitario: payload.precioUnitario,
         descuentoTipo: payload.descuentoTipo || "",
@@ -36,5 +36,26 @@ export function useDetalleCompras() {
     }
   }, []);
 
-  return { createDetalle, loading, error };
+  const getByCompraId = useCallback(async (compraId) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await api.get(`/api/detalle_compras/compra/${compraId}`, { 
+        validateStatus: () => true 
+      });
+
+      if (res.status >= 400) {
+        throw new Error(res?.data?.message || "No se pudieron cargar los detalles");
+      }
+
+      return res.data;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { createDetalle, getByCompraId, loading, error };
 }

@@ -2,6 +2,7 @@ package com.proyecto.seged.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -9,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @Document(collection = "DetalleCompras")
 public class DetalleCompras {
 
@@ -19,17 +21,20 @@ public class DetalleCompras {
 
     private String producto_id;
 
-    private int cantidad;
+    private Integer cantidad;
 
-    private double precioUnitario;
+    private Double precioUnitario;
 
     private Descuentos descuentos;
 
-    private double subtotal;
+    private Double subtotal;
 
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class Descuentos {
-
         private String tipo;
-        private double valor;
+        private Double valor;
     }
 }

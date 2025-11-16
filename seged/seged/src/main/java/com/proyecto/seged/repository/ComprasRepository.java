@@ -5,9 +5,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ComprasRepository extends MongoRepository<Compras, Integer> {
-
-    Compras findById(String id);
-
-    void deleteById(String id);
+public interface ComprasRepository extends MongoRepository<Compras, String> {
 }

@@ -85,7 +85,7 @@ export function Productos() {
 
 
       <div className="card mb-4 shadow">
-        <div className="card-header bg-primary text-white">
+        <div className="card-header bg-dark text-white">
           <h5 className="mb-0">Nuevo Producto</h5>
         </div>
         <div className="card-body">

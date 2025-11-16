@@ -56,9 +56,9 @@ public class InventarioService {
                                           String tipoMovimiento,
                                           Double cantidad,
                                           String motivo,
-                                          String usuarioId,      // ← CAMBIAR de ObjectId a String
-                                          String ventaId,        // ← CAMBIAR de ObjectId a String
-                                          String compraId) {     // ← CAMBIAR de ObjectId a String
+                                          String usuarioId,
+                                          String ventaId,
+                                          String compraId) {
 
         if (cantidad == null || cantidad < 0) {
             throw new IllegalArgumentException("La cantidad no puede ser negativa");

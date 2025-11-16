@@ -212,7 +212,7 @@ export  function Proveedores() {
           {error && <div className="alert alert-danger mt-3">{error}</div>}
 
           <div className="card shadow mt-4">
-            <div className="card-header bg-success text-white">
+            <div className="card-header bg-dark text-white">
               <h4 className="mb-0">Proveedores Registrados ({items.length})</h4>
             </div>
             <div className="card-body">

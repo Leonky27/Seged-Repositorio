@@ -400,9 +400,8 @@ export function Compras() {
       <h3 className="mb-3">Gestión de Compras</h3>
 
 
-      {/* Formulario de nueva compra */}
       <div className="card mb-4 shadow">
-        <div className="card-header bg-success text-white">
+        <div className="card-header bg-dark text-white">
           <h5 className="mb-0">Nueva Compra</h5>
         </div>
         <div className="card-body">

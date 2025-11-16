@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -70,7 +69,7 @@ public class ComprasService {
     }
 
     public Compras get(String id) {
-        return comprasRepository.findById(id);
+        return comprasRepository.findById(id).orElse(null);
     }
 
     public void delete(String id) {

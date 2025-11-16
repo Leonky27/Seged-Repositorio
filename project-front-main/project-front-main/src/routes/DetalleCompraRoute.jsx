@@ -1,7 +1,7 @@
+import { DetalleCompra } from "../admin/DetalleCompra";
 import { NavBar } from "../components/NavBar";
-import { Categoria } from "../admin/Categoria";
 
-export const CategoriaRoute = () => {
+export const DetalleCompraRoute = () => {
   return (
     <div
       className="d-flex flex-column"
@@ -10,7 +10,7 @@ export const CategoriaRoute = () => {
             <NavBar/>
       </div>
       <div style={{ height: "83%", overflow: "auto" }}>
-        <Categoria/>
+        <DetalleCompra/>
       </div>
     </div>
   );

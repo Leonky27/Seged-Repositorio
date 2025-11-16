@@ -12,6 +12,7 @@ import { VentasRoute } from './VentasRoute'
 import { InicioRoute } from './InicioRoute'
 import { VentaDetalleRoute } from './VentaDetalleRoute'
 import { ComprasRoute } from './ComprasRoute'
+import { DetalleCompraRoute } from './DetalleCompraRoute'
 
 
 export const MainRoute = () => {
@@ -31,6 +32,7 @@ export const MainRoute = () => {
       <Route path="/inventario" element={<RequireAuth><InventarioRoute /></RequireAuth>} />
       <Route path="/register" element={<Register />} />
       <Route path="/compras" element={<RequireAuth><ComprasRoute /></RequireAuth>} />
+      <Route path="/compras/:id" element={<RequireAuth><DetalleCompraRoute /></RequireAuth>} />
 
 
 
