@@ -5,7 +5,6 @@ export const DashboardRoute = () => {
   return (
     <div
       className="d-flex flex-column"
-      style={{ height: "100vh" }}
     >
       <div style={{ height: "17%" }}>
             <NavBar/>
