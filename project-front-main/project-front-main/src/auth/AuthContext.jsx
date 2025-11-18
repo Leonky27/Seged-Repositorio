@@ -20,19 +20,22 @@ export function AuthProvider({ children }) {
   };
 
   const register = async (username, password, roles = ["USER"]) => {
+    // Solo registrar, NO guardar token
     const { data } = await api.post("/api/auth/register", {
       username,
       password,
       roles,
     });
-    sessionStorage.setItem("token", data.token);
-    setToken(data.token);
+    
+    // NO guardar token ni actualizar estado
+    return data;
   };
 
   const logout = async () => {
     try {
       await api.post("/api/auth/logout");
     } catch (_) {
+      // Ignorar errores de logout
     }
 
     sessionStorage.removeItem("token");

@@ -5,7 +5,7 @@ const api = axios.create({
   withCredentials: false,
 });
 
-const LOGIN_PATH = "/"; 
+const LOGIN_PATH = "/";
 
 const handleUnauthorized = () => {
   sessionStorage.removeItem("token");
@@ -17,6 +17,7 @@ const handleUnauthorized = () => {
   }
 };
 
+// Interceptor de REQUEST: Agregar token automáticamente
 api.interceptors.request.use((config) => {
   const t = sessionStorage.getItem("token");
   if (t) {
@@ -25,13 +26,16 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Interceptor de RESPONSE: Manejar 401 (excepto en auth)
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     const status = error?.response?.status;
+    const url = error?.config?.url || "";
 
-    if (status === 401) {
-      console.log("⚠️ 401 detectado, cerrando sesión y yendo al login");
+    // Solo redirigir al login si el 401 NO viene de endpoints de autenticación
+    if (status === 401 && !url.includes("/api/auth/")) {
+      console.log("⚠️ 401 detectado en endpoint protegido, cerrando sesión");
       handleUnauthorized();
     }
 

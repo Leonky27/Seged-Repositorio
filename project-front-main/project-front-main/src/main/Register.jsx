@@ -15,6 +15,7 @@ export function Register() {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState(null);
+  const [success, setSuccess] = useState(false);
 
   const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -27,6 +28,7 @@ export function Register() {
   const onSubmit = async (e) => {
     e.preventDefault();
     setErr(null);
+    setSuccess(false);
 
     if (!form.username.trim()) return setErr("El usuario es obligatorio.");
     if (form.password !== form.confirm) return setErr("Las contraseñas no coinciden.");
@@ -35,11 +37,22 @@ export function Register() {
     setLoading(true);
     try {
       await register(form.username, form.password, roles);
-      navigate("/clientes", { replace: true });
+      
+      // Mostrar mensaje de éxito
+      setSuccess(true);
+      
+      // Redirigir al login después de 2 segundos
+      setTimeout(() => {
+        navigate("/login", { 
+          replace: true,
+          state: { message: "Registro exitoso. Por favor inicia sesión." }
+        });
+      }, 2000);
+      
     } catch (e) {
-      const msg = e?.response?.data?.message || "No se pudo registrar. Intenta de nuevo.";
+      console.error("Error en registro:", e);
+      const msg = e?.response?.data?.message || e?.message || "No se pudo registrar. Intenta de nuevo.";
       setErr(msg);
-    } finally {
       setLoading(false);
     }
   };
@@ -98,6 +111,11 @@ export function Register() {
                 <h2 className="text-center mb-3">Crear cuenta</h2>
 
                 {err && <div className="alert alert-danger py-2">{err}</div>}
+                {success && (
+                  <div className="alert alert-success py-2">
+                    ✅ Registro exitoso. Redirigiendo al login...
+                  </div>
+                )}
 
                 <form onSubmit={onSubmit} noValidate>
                   <div className="mb-3">
@@ -133,6 +151,7 @@ export function Register() {
                         className="btn btn-outline-secondary"
                         onClick={() => setShowPass((s) => !s)}
                         tabIndex={-1}
+                        disabled={loading}
                       >
                         {showPass ? "Ocultar" : "Ver"}
                       </button>
@@ -181,8 +200,8 @@ export function Register() {
                     <small className="text-muted">Selecciona al menos un rol.</small>
                   </div>
 
-                  <button type="submit" className="btn btn-dark w-100" disabled={loading}>
-                    {loading ? "Creando..." : "Crear cuenta"}
+                  <button type="submit" className="btn btn-dark w-100" disabled={loading || success}>
+                    {loading ? "Creando cuenta..." : success ? "✓ Cuenta creada" : "Crear cuenta"}
                   </button>
                 </form>
 
